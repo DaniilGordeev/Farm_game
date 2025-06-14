@@ -1,6 +1,6 @@
 import sqlite3
 
-def create_database(database_name='farm_game.db'):
+def create_database(database_name='users.db'):
     # Подключение к базе данных (файл будет создан, если его нет)
     conn = sqlite3.connect(database_name)
     cursor = conn.cursor()
