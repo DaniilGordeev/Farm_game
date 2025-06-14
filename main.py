@@ -9,8 +9,11 @@ from config import TOKEN, HARVEST, PRICE_UPGRADE_DISEASE_RESISTANCE, PRICE_UPGRA
 from database import Database
 import keyboard as kb
 import game_logic as gl
+import create_table
 
 bot = telebot.TeleBot(TOKEN)
+
+create_table.create_database()
 
 @bot.message_handler(regexp='test')
 def test(message):

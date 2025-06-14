@@ -154,7 +154,3 @@ def create_database(database_name='users.db'):
     # Сохранение изменений и закрытие соединения
     conn.commit()
     conn.close()
-
-if __name__ == '__main__':
-    create_database()
-    print("База данных успешно создана!")
