@@ -61,11 +61,13 @@ def start_call(call):
                 f'• Каждый урожай — маленькое достижение\n'\
                 f'• Каждый день приносит что-то новое\n'\
                 f'Ферма ждет твоего прикосновения.\n'
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.main_kb)
+        bot.delete_message(id, call.message.message_id)
+        bot.send_message(id, text, reply_markup=kb.main_kb)
     else:
         text = f'✨ Здарова, {call.from_user.first_name} ✨\n'\
                 f'🛎️ Куда направимся сегодня? 🧭'
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.main_kb)
+        bot.delete_message(id, call.message.message_id)
+        bot.send_message(id, text, reply_markup=kb.main_kb)
 
 @bot.message_handler(regexp='Профиль')
 def profile(message):
