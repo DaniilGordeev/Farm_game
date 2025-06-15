@@ -2,3 +2,4 @@ test.py
 kb.py
 .venv
 __pycache__
+users.db

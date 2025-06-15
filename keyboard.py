@@ -352,6 +352,11 @@ back_market_kb.add(
 
 support_kb = types.InlineKeyboardMarkup()
 support_kb.add(
-    types.InlineKeyboardButton('Мои обращения', callback_data='my_reports'),
+    types.InlineKeyboardButton('📢 Мои обращения', callback_data='my_reports'),
     types.InlineKeyboardButton('🔙 Назад', callback_data='start')
+)
+
+back_main_menu_kb = types.InlineKeyboardMarkup()
+back_main_menu_kb.add(
+    types.InlineKeyboardButton('🏠 На главную', callback_data='start')
 )

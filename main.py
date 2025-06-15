@@ -15,12 +15,6 @@ bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
 
-@bot.message_handler(regexp='test')
-def test(message):
-    id = message.from_user.id
-    mesg = bot.send_message(id, 'ку')
-    print(mesg)
-
 @bot.message_handler(regexp='start')
 def start(message):
     id = message.from_user.id
@@ -90,6 +84,7 @@ def profile(message):
                 f'⚡У тебя активирован бустер:\n'\
                 f'⏳⚡Быстрее в 10 раз\n'\
                 f'══════════════'
+    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.profile_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'profile')
@@ -203,6 +198,7 @@ def inventory(message):
     
     for item in items:
         text += f"│ {item['name']} │ x{item['quantity']} │\n"
+    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.box_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'inventory')
@@ -222,6 +218,7 @@ def inventory(call):
 def city(message):
     id = message.from_user.id 
     text = f"➡️ Выбери направление:"
+    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.city_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'city')
@@ -236,9 +233,15 @@ def buyer(call):
     id = call.from_user.id 
     db = Database()
     inventory_user = db.get_item_inventory_type(id, 'урожай')
-    text = f"🌱 *Фермерский рынок* 🏪\n"\
-            f"Тут ты можешь продать свой урожай:"
-    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.buyer(inventory_user))
+    text = f"🌱 *Фермерский рынок* 🏪\n\n"\
+            f"📃 Прайс-лист Скупщика:\n"\
+            f"<i>🔹 Пшеница — 15 монет</i>\n"\
+            f"<i>🔹 Морковь — 30 монет</i>\n"\
+            f"<i>🔹 Кукуруза — 40 монет</i>\n"\
+            f"<i>🔹 Картофель — 80 монет</i>\n"\
+            f"<i>🔹 Лунный лотос — 800 монет</i>\n"\
+            f"<i>🔹 Огненный перец — 450 монет</i>"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.buyer(inventory_user), parse_mode='html')
     
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_16')
 def sell_item_16(call):
@@ -377,72 +380,84 @@ def seeds_2(call):
 def buy_wheat(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_wheat')
     item = db.get_items_id(1)
     text = f"▄▄▄▄▄▄▄▄▄▄▄▄▄\n"\
             f"{item['name']}\n"\
             f"▀▀▀▀▀▀▀▀▀▀▀▀▀\n"\
-            f"{item['price']} монет"
+            f"{item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_carrot')
 def buy_carrot(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_carrot')
     item = db.get_items_id(2)
     text = f"▄▄▄▄▄▄▄▄▄▄▄▄▄\n"\
             f"{item['name']}\n"\
             f"▀▀▀▀▀▀▀▀▀▀▀▀▀\n"\
-            f"{item['price']} монет"
+            f"{item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_corn')
 def buy_corn(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_corn')
     item = db.get_items_id(3)
     text = f"▄▄▄▄▄▄▄▄▄▄▄▄▄\n"\
             f"{item['name']}\n"\
             f"▀▀▀▀▀▀▀▀▀▀▀▀▀\n"\
-            f"{item['price']} монет"
+            f"{item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_potato')
 def buy_potato(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_potato')
     item = db.get_items_id(4)
     text = f"▄▄▄▄▄▄▄▄▄▄▄▄▄\n"\
             f"{item['name']}\n"\
             f"▀▀▀▀▀▀▀▀▀▀▀▀▀\n"\
-            f"{item['price']} монет"
+            f"{item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_moon_lotus')
 def buy_moon_lotus(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_moon_lotus')
     item = db.get_items_id(5)
     text = f"▄▄▄▄▄▄▄▄▄▄▄▄▄\n"\
             f"{item['name']}\n"\
             f"▀▀▀▀▀▀▀▀▀▀▀▀▀\n"\
-            f"{item['price']} монет"
+            f"{item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_fire_pepper')
 def buy_fire_pepper(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_fire_pepper')
     item = db.get_items_id(6)
     text = f"▄▄▄▄▄▄▄▄▄▄▄▄▄\n"\
             f"{item['name']}\n"\
             f"▀▀▀▀▀▀▀▀▀▀▀▀▀\n"\
-            f"{item['price']} монет"
+            f"{item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
 
 
@@ -467,7 +482,14 @@ def quantity_buy_1(call):
     if user['money'] >= item['price']:
         db.set_inventory(id, int(item['item_id']))
         db.edit_money(id, int(item['price']))
+        user = db.get_me(id)
         text = f"✅ Куплено: **{item['name']}** (1 шт.)"
+        text_for_message = f"▄▄▄▄▄▄▄▄▄▄▄▄▄\n"\
+            f"{item['name']}\n"\
+            f"▀▀▀▀▀▀▀▀▀▀▀▀▀\n"\
+            f"{item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
+        bot.edit_message_text(text_for_message, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
@@ -490,10 +512,17 @@ def quantity_buy_5(call):
     if user['locate'] == 'buy_fire_pepper':
         item = db.get_items_id(6)
 
-    if user['money'] >= item['price']:
+    if user['money'] >= item['price']*5:
         db.set_inventory(id, int(item['item_id']), 5)
         db.edit_money(id, int(item['price'])*5)
+        user = db.get_me(id)
         text = f"✅ Куплено: **{item['name']}** (5 шт.)"
+        text_for_message = f"▄▄▄▄▄▄▄▄▄▄▄▄▄\n"\
+            f"{item['name']}\n"\
+            f"▀▀▀▀▀▀▀▀▀▀▀▀▀\n"\
+            f"{item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
+        bot.edit_message_text(text_for_message, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
@@ -516,10 +545,17 @@ def quantity_buy_10(call):
     if user['locate'] == 'buy_fire_pepper':
         item = db.get_items_id(6)
 
-    if user['money'] >= item['price']:
+    if user['money'] >= item['price']*10:
         db.set_inventory(id, int(item['item_id']), 10)
         db.edit_money(id, int(item['price'])*10)
+        user = db.get_me(id)
         text = f"✅ Куплено: **{item['name']}** (10 шт.)"
+        text_for_message = f"▄▄▄▄▄▄▄▄▄▄▄▄▄\n"\
+            f"{item['name']}\n"\
+            f"▀▀▀▀▀▀▀▀▀▀▀▀▀\n"\
+            f"{item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
+        bot.edit_message_text(text_for_message, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
@@ -539,92 +575,90 @@ def rakes_2(call):
 def buy_wood_rake(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_wood_rake')
     item = db.get_items_id(7)
-    text =  f"🌳┏━━━━━━━━━━━━━━━━━━━┓🌳\n"\
-            f"   🪓 ДЕРЕВЯННЫЕ ГРАБЛИ 🪓\n"\
-            f"🌳┗━━━━━━━━━━━━━━━━━━━┛🌳\n"\
-            f"├ 💪 Прочность: 50 использований\n"\
+    text =  f"🪓 ДЕРЕВЯННЫЕ ГРАБЛИ 🪓\n"\
+            f"├ 🛡️ Прочность: 50 использований\n"\
             f"└ 💰 Цена: {item['price']} монет\n"\
-            f"🍃━━━━━━━━━━━━━━━━━━━━🍃"
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_iron_rake')
 def buy_iron_rake(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_iron_rake')
     item = db.get_items_id(9)
-    text =  f"🌾┏━━━━━━━━━━━━━━━━━━━┓🌾\n"\
-            f"   🔨 ЖЕЛЕЗНЫЕ ГРАБЛИ 🔨\n"\
-            f"🌾┗━━━━━━━━━━━━━━━━━━━┛🌾\n"\
+    text =  f"🔨 ЖЕЛЕЗНЫЕ ГРАБЛИ 🔨\n"\
             f"├ 🚜 Эффект: +2 к урожаю с грядки\n"\
-            f"├ 💪 Прочность: 100 использований\n"\
+            f"├ 🛡️ Прочность: 100 использований\n"\
             f"└ 💰 Цена: {item['price']} монет\n"\
-            f"☘️━━━━━━━━━━━━━━━━━━━━☘️"
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_steel_rake')
 def buy_steel_rake(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_steel_rake')
     item = db.get_items_id(8)
-    text =  f"⚙️┏━━━━━━━━━━━━━━━━━━━━━┓⚙️\n"\
-            f"      🔧 СТАЛЬНЫЕ ГРАБЛИ 🔧\n"\
-            f"⚙️┗━━━━━━━━━━━━━━━━━━━━━┛⚙️\n"\
+    text =  f"🔧 СТАЛЬНЫЕ ГРАБЛИ 🔧\n"\
             f"├ 🌟 Эффект: +3🍅 к урожаю с грядки\n"\
-            f"├ 🛡️ Прочность: 150 использований [{'■'*10}{'□'*5}]\n"\
-            f"└ 💎 Цена: {item['price']} монет\n"\
-            f"🔩━━━━━━━━━━━━━━━━━━━━🔩"
+            f"├ 🛡️ Прочность: 150 использований\n"\
+            f"└ 💰 Цена: {item['price']} монет\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_rain_rake')
 def buy_rain_rake(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_rain_rake')
     item = db.get_items_id(10)
-    text =  f"🌧️┏━━━━━━━━━━━━━━━━━━━━━┓🌧️\n"\
-            f"      ☔ ГРАБЛИ ДОЖДЯ ☔\n"\
-            f"🌧️┗━━━━━━━━━━━━━━━━━━━━━┛🌧️\n"\
+    text =  f"☔ ГРАБЛИ ДОЖДЯ ☔\n"\
             f"├ 🌊 Эффект: 2x влажность грядок\n"\
             f"├ ⚠ Особенность: -1 прочность за полив/сбор\n"\
-            f"├ 💧 Прочность: 15 использований [{'💧'*15}]\n"\
-            f"├ 💰 Цена: {item['price']} золота + 5 🌧️ молекул дождя\n"\
-            f"🌦️━━━━━━━━━━━━━━━━━━━━🌦️"
+            f"├ 🛡️ Прочность: 15 использований\n"\
+            f"├ 💰 Цена: \n"\
+            f"├ 🪙 {item['price']} монет\n"\
+            f"└ 💧 5 молекул дождя\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_dreams_rake')
 def buy_dreams_rake(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_dreams_rake')
     item = db.get_items_id(11)
-    text =  f"🌌┏━━━━━━━━━━━━━━━━━━━━━┓🌌\n"\
-            f"      ✨ ГРАБЛИ СНОВИДЕНИЙ ✨\n"\
-            f"🌌┗━━━━━━━━━━━━━━━━━━━━━┛🌌\n"\
+    text =  f"✨ ГРАБЛИ СНОВИДЕНИЙ ✨\n"\
             f"├ 🌙 Эффект: 2x урожай (22:00-8:00 МСК)\n"\
-            f"├ 💫 Прочность: 150 лунных циклов\n"\
-            f"├ 🌿 Стоимость: {item['price']} лунного серебра + 3\n"\
-            f"│              сновиденческие травы 🌱🌱🌱\n"\
-            f"🌠━━━━━━━━━━━━━━━━━━━━🌠"
+            f"├ 🛡️ Прочность: 150 использований\n"\
+            f"├ 💰 Цена: \n"\
+            f"├ 🪙 {item['price']} монет\n"\
+            f"└ 🌿 5 сновиденческие травы\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_quantum_rake')
 def buy_quantum_rake(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     db.edit_locate(id, 'buy_quantum_rake')
     item = db.get_items_id(12)
-    text =  f"⚛️┏━━━━━━━━━━━━━━━━━━━━━┓⚛️\n"\
-            f"      🌌 КВАНТОВЫЕ ГРАБЛИ 🌌\n"\
-            f"⚛️┗━━━━━━━━━━━━━━━━━━━━━┛⚛️\n"\
-            f"├ ⚡ Эффект: 50% шанс 2x урожая (суперпозиция)\n"\
-            f"├ ∞ Прочность: 200 квантовых циклов\n"\
-            f"├ 💎 Стоимость: {item['price']} кристаллов + 5\n"\
-            f"│              квантовых обломков (🔷🔷🔷🔷🔷)\n"\
-            f"🌐━━━━━━━━━━━━━━━━━━━━🌐"
+    text =  f"🌌 КВАНТОВЫЕ ГРАБЛИ 🌌\n"\
+            f"├ ⚡ Эффект: 50% шанс 2x урожая\n"\
+            f"├ 🛡️ Прочность: 200 квантовых циклов\n"\
+            f"├ 💰 Цена: \n"\
+            f"├ 🪙 {item['price']} монет\n"\
+            f"└ ⚛️ 5 квантовых обломоков\n"\
+            f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_rakes')
@@ -633,20 +667,50 @@ def buy_rakes(call):
     db = Database()
     user = db.get_me(id)
     user_tool = db.get_rake(id)
+
     if user['locate'] == 'buy_wood_rake':
         item = db.get_items_id(7)
+        resource = [0, 0] # ID ресурса, количество
     if user['locate'] == 'buy_iron_rake':
         item = db.get_items_id(9)
+        resource = [0, 0]
     if user['locate'] == 'buy_steel_rake':
         item = db.get_items_id(8)
+        resource = [0, 0]
     if user['locate'] == 'buy_rain_rake':
         item = db.get_items_id(10)
+        resource = [13, 5]
     if user['locate'] == 'buy_dreams_rake':
         item = db.get_items_id(11)
+        resource = [14, 5]
     if user['locate'] == 'buy_quantum_rake':
         item = db.get_items_id(12)
+        resource = [15, 5]
 
     if user['money'] >= item['price']:
+        if resource[0] == 13:
+            if db.get_item_invetory(id, 13)['quantity'] < 5:
+                text = f"❌ Нехватает ресурса для покупки"
+                bot.answer_callback_query(call.id, text)
+                return
+            else:
+                db.remove_item_id(id, 13, 5)
+        if resource[0] == 14:
+            if db.get_item_invetory(id, 14)['quantity'] < 5:
+                text = f"❌ Нехватает ресурса для покупки"
+                bot.answer_callback_query(call.id, text)
+                return
+            else:
+                db.remove_item_id(id, 14, 5)
+        if resource[0] == 15:
+            if db.get_item_invetory(id, 15)['quantity'] < 5:
+                text = f"❌ Нехватает ресурса для покупки"
+                bot.answer_callback_query(call.id, text)
+                return
+            else:
+                db.remove_item_id(id, 15, 5)
+
+
         if not(user_tool):
             db.set_tool(id, int(item['item_id']), int(item['strength']))
             db.edit_money(id, int(item['price']))
@@ -671,20 +735,49 @@ def replace_rake(call):
     db = Database()
     user = db.get_me(id)
     user_tool = db.get_rake(id)
+
     if user['locate'] == 'buy_wood_rake':
         item = db.get_items_id(7)
+        resource = [0, 0] # ID ресурса, количество
     if user['locate'] == 'buy_iron_rake':
         item = db.get_items_id(9)
+        resource = [0, 0]
     if user['locate'] == 'buy_steel_rake':
         item = db.get_items_id(8)
+        resource = [0, 0]
     if user['locate'] == 'buy_rain_rake':
         item = db.get_items_id(10)
+        resource = [13, 5]
     if user['locate'] == 'buy_dreams_rake':
         item = db.get_items_id(11)
+        resource = [14, 5]
     if user['locate'] == 'buy_quantum_rake':
         item = db.get_items_id(12)
+        resource = [15, 5]
     
     if user['money'] >= item['price']:
+        if resource[0] == 13:
+            if db.get_item_invetory(id, 13)['quantity'] < 5:
+                text = f"❌ Нехватает ресурса для покупки"
+                bot.answer_callback_query(call.id, text)
+                return
+            else:
+                db.remove_item_id(id, 13, 5)
+        if resource[0] == 14:
+            if db.get_item_invetory(id, 14)['quantity'] < 5:
+                text = f"❌ Нехватает ресурса для покупки"
+                bot.answer_callback_query(call.id, text)
+                return
+            else:
+                db.remove_item_id(id, 14, 5)
+        if resource[0] == 15:
+            if db.get_item_invetory(id, 15)['quantity'] < 5:
+                text = f"❌ Нехватает ресурса для покупки"
+                bot.answer_callback_query(call.id, text)
+                return
+            else:
+                db.remove_item_id(id, 15, 5)
+        
         db.remove_tool(id, user_tool['tool_id'])
         db.set_tool(id, int(item['item_id']), int(item['strength']))
         db.edit_money(id, int(item['price']))
@@ -705,6 +798,7 @@ def farm(message):
     user_farm = db.get_farm(id)
     text = f"🌻 Твоя ферма:\n"\
             f'Выбери грядку, которую ты хочешь обработать'
+    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.make_beds(user_farm['amount_beds'])[0])
 
 @bot.callback_query_handler(lambda call: call.data == 'farm')
@@ -764,6 +858,7 @@ def bed_1(call):
     db = Database()
     db.edit_locate(id, 'bed_1')
     user_bed = db.get_bed(id, 1)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
@@ -772,10 +867,17 @@ def bed_1(call):
 
     text = f"⚔️ [Грядка №1] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+    
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -790,6 +892,7 @@ def bed_1(call):
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
             bot.edit_message_text(text, id, call.message.message_id, 
                               reply_markup=kb.bed_state_1(time_left))
+            
     if user_bed['state'] == 2:
         text += f"✅ Состояние: Можно собирать\n"\
                 f"🌱 Что растет: {user_bed['name']}\n"\
@@ -807,17 +910,26 @@ def bed_2(call):
     db = Database()
     db.edit_locate(id, 'bed_2')
     user_bed = db.get_bed(id, 2)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
             db.set_seeds_bed(id, 2, 0, 0, 0, 0)
+
     text = f"⚔️ [Грядка №2] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -832,6 +944,7 @@ def bed_2(call):
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
             bot.edit_message_text(text, id, call.message.message_id, 
                               reply_markup=kb.bed_state_1(time_left))
+            
     if user_bed['state'] == 2:
         text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
@@ -849,17 +962,26 @@ def bed_3(call):
     db = Database()
     db.edit_locate(id, 'bed_3')
     user_bed = db.get_bed(id, 3)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
             db.set_seeds_bed(id, 3, 0, 0, 0, 0)
+
     text = f"⚔️ [Грядка №3] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -874,6 +996,7 @@ def bed_3(call):
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
             bot.edit_message_text(text, id, call.message.message_id, 
                               reply_markup=kb.bed_state_1(time_left))
+            
     if user_bed['state'] == 2:
         text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
@@ -891,17 +1014,26 @@ def bed_4(call):
     db = Database()
     db.edit_locate(id, 'bed_4')
     user_bed = db.get_bed(id, 4)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
             db.set_seeds_bed(id, 4, 0, 0, 0, 0)
+
     text = f"⚔️ [Грядка №4] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -916,6 +1048,7 @@ def bed_4(call):
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
             bot.edit_message_text(text, id, call.message.message_id, 
                               reply_markup=kb.bed_state_1(time_left))
+            
     if user_bed['state'] == 2:
         text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
@@ -933,17 +1066,26 @@ def bed_5(call):
     db = Database()
     db.edit_locate(id, 'bed_5')
     user_bed = db.get_bed(id, 5)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
             db.set_seeds_bed(id, 5, 0, 0, 0, 0)
+
     text = f"⚔️ [Грядка №5] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -958,6 +1100,7 @@ def bed_5(call):
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
             bot.edit_message_text(text, id, call.message.message_id, 
                               reply_markup=kb.bed_state_1(time_left))
+            
     if user_bed['state'] == 2:
         text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
@@ -975,17 +1118,26 @@ def bed_6(call):
     db = Database()
     db.edit_locate(id, 'bed_6')
     user_bed = db.get_bed(id, 6)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
             db.set_seeds_bed(id, 6, 0, 0, 0, 0)
+
     text = f"⚔️ [Грядка №6] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -1000,6 +1152,7 @@ def bed_6(call):
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
             bot.edit_message_text(text, id, call.message.message_id, 
                               reply_markup=kb.bed_state_1(time_left))
+            
     if user_bed['state'] == 2:
         text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
@@ -1017,17 +1170,26 @@ def bed_7(call):
     db = Database()
     db.edit_locate(id, 'bed_7')
     user_bed = db.get_bed(id, 7)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
             db.set_seeds_bed(id, 7, 0, 0, 0, 0)
+
     text = f"⚔️ [Грядка №7] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -1059,17 +1221,26 @@ def bed_8(call):
     db = Database()
     db.edit_locate(id, 'bed_8')
     user_bed = db.get_bed(id, 8)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
             db.set_seeds_bed(id, 8, 0, 0, 0, 0)
+    
     text = f"⚔️ [Грядка №8] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -1101,17 +1272,26 @@ def bed_9(call):
     db = Database()
     db.edit_locate(id, 'bed_9')
     user_bed = db.get_bed(id, 9)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
             db.set_seeds_bed(id, 9, 0, 0, 0, 0)
+
     text = f"⚔️ [Грядка №9] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -1126,6 +1306,7 @@ def bed_9(call):
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
             bot.edit_message_text(text, id, call.message.message_id, 
                               reply_markup=kb.bed_state_1(time_left))
+            
     if user_bed['state'] == 2:
         text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
@@ -1143,17 +1324,26 @@ def bed_10(call):
     db = Database()
     db.edit_locate(id, 'bed_10')
     user_bed = db.get_bed(id, 10)
+    user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
             db.set_seeds_bed(id, 10, 0, 0, 0, 0)
+
     text = f"⚔️ [Грядка №10] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
+    
+    if user_tool != None: 
+        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
+    else:
+        text += f"🛠️ Грабли: ❌ Нет\n"
+
     if user_bed['state'] == 0:
         text += f"🌱 Состояние: Ничего не посажено\n"\
                 f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left[0] == 'Собрать урожай':
@@ -1168,6 +1358,7 @@ def bed_10(call):
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
             bot.edit_message_text(text, id, call.message.message_id, 
                               reply_markup=kb.bed_state_1(time_left))
+            
     if user_bed['state'] == 2:
         text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
@@ -1202,8 +1393,6 @@ def set_seeds_1(call):
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 1)
     end_time = gl.end_time(growth_minutes=30)
-
-    print(gl.has_time_passed(user['buster_x10_time_all']))
 
     if gl.has_time_passed(user['buster_x10_time_all']):
         end_time = gl.end_time(growth_minutes=3)
@@ -1897,9 +2086,15 @@ def bid_user_x10(call):
 def bid_1_12(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     user_casino = db.get_casino(id)
     number = gl.roulette_random()
     
+    if user['money'] < user_casino['bid'] or user['money'] < 10:
+        text = f"😢 Упс! Не хватает монет..."
+        bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        return
+
     text = f'Выпало число {number}\n\n'
     if number >= 1 and number <= 12:
         db.add_money(id, user_casino['bid']*2)
@@ -1920,9 +2115,15 @@ def bid_1_12(call):
 def bid_13_24(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     user_casino = db.get_casino(id)
     number = gl.roulette_random()
     
+    if user['money'] < user_casino['bid'] or user['money'] < 10:
+        text = f"😢 Упс! Не хватает монет..."
+        bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        return
+
     text = f'Выпало число {number}\n\n'
     if number >= 13 and number <= 24:
         db.add_money(id, user_casino['bid']*2)
@@ -1943,9 +2144,15 @@ def bid_13_24(call):
 def bid_25_36(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     user_casino = db.get_casino(id)
     number = gl.roulette_random()
     
+    if user['money'] < user_casino['bid'] or user['money'] < 10:
+        text = f"😢 Упс! Не хватает монет..."
+        bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        return
+
     text = f'Выпало число {number}\n\n'
     if number >= 25 and number <= 36:
         db.add_money(id, user_casino['bid']*2)
@@ -1966,8 +2173,14 @@ def bid_25_36(call):
 def bid_black(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     user_casino = db.get_casino(id)
     number = gl.roulette_random()
+
+    if user['money'] < user_casino['bid'] or user['money'] < 10:
+        text = f"😢 Упс! Не хватает монет..."
+        bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        return
 
     text = f'Выпало число {number}\n\n'
     if number in [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]:
@@ -1989,8 +2202,14 @@ def bid_black(call):
 def bid_red(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     user_casino = db.get_casino(id)
     number = gl.roulette_random()
+
+    if user['money'] < user_casino['bid'] or user['money'] < 10:
+        text = f"😢 Упс! Не хватает монет..."
+        bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        return
 
     text = f'Выпало число {number}\n\n'
     if number in [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]:
@@ -2012,8 +2231,14 @@ def bid_red(call):
 def bid_even(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     user_casino = db.get_casino(id)
     number = gl.roulette_random()
+
+    if user['money'] < user_casino['bid'] or user['money'] < 10:
+        text = f"😢 Упс! Не хватает монет..."
+        bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        return
 
     text = f'Выпало число {number}\n\n'
     if number % 2 == 0 and number != 0:
@@ -2035,8 +2260,14 @@ def bid_even(call):
 def bid_odd(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     user_casino = db.get_casino(id)
     number = gl.roulette_random()
+
+    if user['money'] < user_casino['bid'] or user['money'] < 10:
+        text = f"😢 Упс! Не хватает монет..."
+        bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        return
 
     text = f'Выпало число {number}\n\n'
     if number % 2 == 1:
@@ -2058,8 +2289,14 @@ def bid_odd(call):
 def bid_zero(call):
     id = call.from_user.id
     db = Database()
+    user = db.get_me(id)
     user_casino = db.get_casino(id)
     number = gl.roulette_random()
+
+    if user['money'] < user_casino['bid'] or user['money'] < 10:
+        text = f"😢 Упс! Не хватает монет..."
+        bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        return
 
     text = f'Выпало число {number}\n\n'
     if number == 0:
@@ -2185,6 +2422,12 @@ def roll_dice(call):
     numbers_diller = numbers[0]
     numbers_user = numbers[1]
     photo = open(f'image/dice/{numbers_diller[0]}_{numbers_diller[1]}_{numbers_user[0]}_{numbers_user[1]}.png', 'rb')
+
+    if user['money'] < user_casino['bid'] or user['money'] < 10:
+        text = f"😢 Упс! Не хватает монет..."
+        bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        return
+
     if numbers_diller[0] + numbers_diller[1] > numbers_user[0] + numbers_user[1]:
         db.edit_money(id, user_casino['bid'])
         user = db.get_me(id)
@@ -2224,40 +2467,41 @@ def handle_sell(message):
     user = db.get_me(id)
     user_market = db.get_products_user(id)
     if len(user_market) == user['max_product']:
-        bot.reply_to(message, 'У тебя нет свободных слотов')
+        bot.send_message(id, 'У тебя нет свободных слотов', reply_markup=kb.back_main_menu_kb)
         return
     args = message.text.split()[1:]
     if len(args) < 3:
-        bot.reply_to(message, "Использование: /sell [id товара] [количество] [цена]\n"\
-                                "Цена ставится за общее количетсво товара")
+        bot.send_message(id, "Использование: /sell [id товара] [количество] [цена]\n"\
+                                "Цена ставится за общее количетсво товара", reply_markup=kb.back_main_menu_kb)
         return
     item_id, quantity, price = args[0], args[1], args[2]
+    bot.delete_messages(id, [message.message_id, message.message_id-1])
     try:
         item_id = int(item_id)
         quantity = int(quantity)
         price = int(price)
         if item_id not in ID_ITEM_FOR_SELL:
-            bot.reply_to(message, 'Товар нельзя продать')
+            bot.send_message(id, 'Товар нельзя продать', reply_markup=kb.back_main_menu_kb)
             return
         user_inventory_item = db.get_item_invetory(id, item_id)
         if user_inventory_item != None:
             if user_inventory_item['quantity'] >= quantity:
                 post_listing(message.from_user.id, item_id, price, quantity)
                 db.remove_item_id(id, item_id, quantity)
-                bot.reply_to(message, f"✅ Товар {item_id} выставлен на продажу!")
+                bot.send_message(id, f"✅ Товар {item_id} выставлен на продажу!", reply_markup=kb.back_main_menu_kb)
             else:
-                bot.reply_to(message, f"У тебя нет такого количества")
+                bot.send_message(id, f"У тебя нет такого количества", reply_markup=kb.back_main_menu_kb)
         else:
-            bot.reply_to(message, f"У тебя нет данного предмета")
+            bot.send_message(id, f"У тебя нет данного предмета", reply_markup=kb.back_main_menu_kb)
     except ValueError:
-        bot.reply_to(message, "Ошибка: id товара, количество и цена должны быть числами")
+        bot.send_message(id, "Ошибка: id товара, количество и цена должны быть числами", reply_markup=kb.back_main_menu_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'sell')
 def sell(call):
     id = call.from_user.id
     text =  f'Использование: /sell [id товара] [количество] [цена]\n'\
             f'Цена ставится за общее количетсво товара'
-    bot.edit_message_text(text, id, call.message.message_id)
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_main_menu_kb)
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('buy_'))
 def handle_buy(call):
@@ -2287,7 +2531,7 @@ def handle_buy(call):
     bot.delete_message(ID_CHANNEL, call.message.message_id)
 
     bot.send_message(post['id_owner'], 
-                     f"У тебя купили {info_item['name']} в количестве {post['quantity']}")
+                     f"У тебя купили {info_item['name']} в количестве {post['quantity']}", reply_markup=kb.back_main_menu_kb)
     
     bot.answer_callback_query(call.id,f"Вы купили {info_item['name']}!")
 
@@ -2349,6 +2593,7 @@ def slot_cancel(call):
 def support(message):
     id = message.from_user.id
     text = f'✉️ Чтобы написать о своей(ем) проблеме/вопросе используй команду /report [текст проблемы]'
+    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.support_kb)
 
 @bot.message_handler(commands=['report'])
@@ -2363,7 +2608,7 @@ def report(message):
 
     if text_report == '':
         text = f'✉️ Чтобы написать о своей(ем) проблеме/вопросе используй команду /report [текст проблемы]'
-        bot.send_message(id, text)
+        bot.send_message(id, text, reply_markup=kb.back_main_menu_kb)
         return
     
 
@@ -2376,7 +2621,8 @@ def report(message):
                         f'Текст: {text_report}'
 
     text = f'✅ Обращение получено'
-    bot.send_message(id, text)
+    bot.delete_messages(id, [message.message_id, message.message_id-1])
+    bot.send_message(id, text, reply_markup=kb.back_main_menu_kb)
     bot.send_message(ID_CHAT_REPORTS, text_for_support)
 
 
@@ -2434,22 +2680,23 @@ def report_id(message):
     db = Database()
     args = message.text.split(maxsplit=2)[1:]
     id_report, text = args[0], args[1]
+    bot.delete_messages(id,  [message.message_id, message.message_id-1])
     try:
         id_report = int(id_report)
         info_report = db.get_report(id_report)
 
         if info_report == None or info_report['id_addressing'] != id:
-            bot.reply_to(message, 'Такого обращения нет')
+            bot.send_message(id, 'Такого обращения нет', reply_markup=kb.back_main_menu_kb)
             return
         
-        bot.reply_to(message, '✅ Удачно')
+        bot.send_message(id, '✅ Удачно', reply_markup=kb.back_main_menu_kb)
 
         text_for_support = f'Обновление обращения №{id_report}\n\n'\
                             f'{text}'
         bot.send_message(ID_CHAT_REPORTS, text_for_support)
 
     except ValueError:
-        bot.reply_to(message, 'ID обращения должно быть цклым числом')
+        bot.send_message(id, 'ID обращения должно быть цклым числом', reply_markup=kb.back_main_menu_kb)
 
 
 
@@ -2475,6 +2722,6 @@ def scheduler():
         time.sleep(1)
 
 
-scheduler_thread = threading.Thread(target=scheduler).start()
+scheduler_thread = threading.Thread(target=scheduler, daemon=True).start()
 
 bot.polling(none_stop=True, interval=0)
