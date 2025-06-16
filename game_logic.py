@@ -18,7 +18,7 @@ def calculate_end_time(time):
         
     # Если время уже прошло
     if remaining <= timedelta(0):
-        return ['Собрать урожай', 'get_harvest']
+        return True
         
     # Преобразуем timedelta в ЧЧ:ММ:СС
     total_seconds = int(remaining.total_seconds())
@@ -176,3 +176,12 @@ def dice_random():
     dice_2_user = random.randint(1,6)
 
     return [[dice_1_diller, dice_2_diller], [dice_1_user, dice_2_user]]
+
+def check_time(end_time):
+    end_time = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+    now = datetime.now()
+
+    if now >= end_time:
+        return True
+    
+    return False

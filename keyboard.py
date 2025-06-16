@@ -376,28 +376,28 @@ buy_rake_kb = types.InlineKeyboardMarkup()
 buy_rake_kb.add(types.InlineKeyboardButton('🛒 Купить грабли', callback_data='buy_rake_training'))
 
 farm_work_kb = types.InlineKeyboardMarkup()
-farm_work_kb.add(types.InlineKeyboardButton('На ферму', callback_data='farm_work'))
+farm_work_kb.add(types.InlineKeyboardButton('🌱 На ферму', callback_data='farm_work'))
 
 set_seed_kb = types.InlineKeyboardMarkup()
-set_seed_kb.add(types.InlineKeyboardButton('Посадить семена', callback_data='set_seed_training'))
+set_seed_kb.add(types.InlineKeyboardButton('🌾 Посадить семена', callback_data='set_seed_training'))
 
 get_harvest_kb = types.InlineKeyboardMarkup()
-get_harvest_kb.add(types.InlineKeyboardButton('Собрать урожай', callback_data='get_harvest_training'))
+get_harvest_kb.add(types.InlineKeyboardButton('🧺 Собрать урожай', callback_data='get_harvest_training'))
 
 go_buyer_kb = types.InlineKeyboardMarkup()
-go_buyer_kb.add(types.InlineKeyboardButton('Пошли', callback_data='go_buyer'))
+go_buyer_kb.add(types.InlineKeyboardButton('🚶 Пошли', callback_data='go_buyer'))
 
 sell_harvest_kb = types.InlineKeyboardMarkup()
-sell_harvest_kb.add(types.InlineKeyboardButton('Продать урожай', callback_data='sell_harvest_training'))
+sell_harvest_kb.add(types.InlineKeyboardButton('💰 Продать урожай', callback_data='sell_harvest_training'))
 
 go_market_kb = types.InlineKeyboardMarkup()
-go_market_kb.add(types.InlineKeyboardButton('Пошли', callback_data='go_market'))
+go_market_kb.add(types.InlineKeyboardButton('🏃 Пошли', callback_data='go_market'))
 
 end_training_kb = types.InlineKeyboardMarkup()
-end_training_kb.add(types.InlineKeyboardButton('Понял', callback_data='end_training'))
+end_training_kb.add(types.InlineKeyboardButton('👌 Понял', callback_data='end_training'))
 
 go_game_kb = types.InlineKeyboardMarkup()
-go_game_kb.add(types.InlineKeyboardButton('Погнали играть!', callback_data='profile'))
+go_game_kb.add(types.InlineKeyboardButton('🎮 Погнали играть!', callback_data='profile'))
 
 continue_training_kb = types.InlineKeyboardMarkup()
-continue_training_kb.add(types.InlineKeyboardButton('Продолжить', callback_data='continue_training'))
+continue_training_kb.add(types.InlineKeyboardButton('➡️ Продолжить', callback_data='continue_training'))

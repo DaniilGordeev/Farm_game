@@ -1061,7 +1061,8 @@ def bed_1(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 1, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1113,7 +1114,8 @@ def bed_2(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 2, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1165,7 +1167,8 @@ def bed_3(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 3, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1217,7 +1220,8 @@ def bed_4(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 4, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1269,7 +1273,8 @@ def bed_5(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 5, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1321,7 +1326,8 @@ def bed_6(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 6, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1373,7 +1379,8 @@ def bed_7(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 7, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1424,7 +1431,8 @@ def bed_8(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 8, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1475,7 +1483,8 @@ def bed_9(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 9, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1527,7 +1536,8 @@ def bed_10(call):
 
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left[0] == 'Собрать урожай':
+        if time_left == True:
+            db.set_state_bed(id, 10, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -2792,10 +2802,10 @@ def support(message):
     bot.send_message(id, text, reply_markup=kb.support_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'support')
-def support(message):
-    id = message.from_user.id
+def support(call):
+    id = call.from_user.id
     text = f'✉️ Чтобы написать о своей(ем) проблеме/вопросе используй команду /report [текст проблемы]'
-    bot.send_message(id, text, reply_markup=kb.support_kb)
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.support_kb)
 
 @bot.message_handler(commands=['report'])
 def report(message):
@@ -2806,6 +2816,7 @@ def report(message):
     id = message.from_user.id
     db = Database()
     user = db.get_me(id)
+    user_reports = db.get_report_addressing(id)
 
     if user['locate'] == 'training':
         bot.send_message(id, 
@@ -2813,6 +2824,9 @@ def report(message):
                          reply_markup=kb.continue_training_kb)
         return
 
+    if len(user_reports) == 3: 
+        bot.send_message(id, "❌ Можно отправить только 3 обращения.") 
+        return
 
     text_report = message.text[8:]
 
@@ -2919,30 +2933,39 @@ def my_reports(call):
     id = call.from_user.id
     db = Database()
     reports = db.get_report_addressing(id)
-    text = f"Твои активные обращения:\n"
+    text = f"📋 <b>Твои активные обращения:</b>\n\n"
     for report in reports:
-        text += f"ID: {report['id']}\n"
+        text += f"🆔 <b>ID:</b> {report['id']}\n"
         if report['state'] == 0:
-            text += f"Состояние: Новое обращение"
+            text += f"🟢 <b>Состояние:</b> Новое обращение 🆕\n"
         else:
-            text += f"Состояние: Решается"
-        text += f"Текст обращения: \n"\
-                f"{report['text']}\n\n"
+            text += f"🟡 <b>Состояние:</b> В процессе решения 🔄\n"
+        text += f"📝 <b>Текст обращения:</b>\n"\
+                f"┗ <i>{report['text']}</i>\n"\
+                f"────────────────────\n\n"
 
-    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_support_kb)
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_support_kb, parse_mode='html')
 
 
 
 def update_tasks():
-    start = time.time()
     db = Database()
     users = db.get_all_id_users()
     for user in users:
         info_of_user = db.get_info_for_tasks(user['id'])
         db.set_tasks(user['id'], gl.generate_tasks(info_of_user))
-    end = time.time()
-    print(end-start)
 
+def send_notification_harvest():
+    db = Database()
+    users = db.get_id_users_ready_harvest()
+    for user in users:
+        if gl.check_time(user['time_end']):
+            bot.send_message(user['id_owner'], f'На грядке №{user['id_bed']} вырос урожай')
+            db.set_state_bed(user['id_owner'], user['id_bed'], 2)
+
+
+
+schedule.every(1).minutes.do(send_notification_harvest)
 schedule.every().day.at('00:00').do(update_tasks)
 
 
