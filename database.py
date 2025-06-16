@@ -861,3 +861,14 @@ class Database:
             (self._id, )
         )
         return self._cursor.fetchone()
+    
+    def get_report_addressing(self, id_addressing):
+        self._id_addressing = id_addressing
+
+        self._cursor.execute(
+            '''
+            SELECT * FROM reports WHERE id_addressing = ? AND state IN (0, 1)
+            ''',
+            (self._id_addressing, )
+        )
+        return self._cursor.fetchall()

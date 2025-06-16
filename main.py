@@ -15,7 +15,12 @@ bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
 
-@bot.message_handler(regexp='start')
+@bot.callback_query_handler(lambda call: call.data == 'continue_training')
+def continue_training(call):
+    id = call.from_user.id
+    bot.delete_messages(id, [call.message.message_id, call.message.message_id-1])
+
+@bot.message_handler(commands=['start'])
 def start(message):
     id = message.from_user.id
     db = Database()
@@ -31,43 +36,198 @@ def start(message):
                 f'• Каждое семя — начало новой истории\n'\
                 f'• Каждый урожай — маленькое достижение\n'\
                 f'• Каждый день приносит что-то новое\n'\
-                f'Ферма ждет твоего прикосновения.\n'
-        bot.send_message(id, text, reply_markup=kb.main_kb)
+                f'Ферма ждет твоего прикосновения.\n\n'\
+                f"👣 Давай пройдем небольшое обучение, оно не займет много времени!"
+        bot.send_message(id, text, reply_markup=kb.start_kb)
     else:
-        text = f'✨ Здарова, {message.from_user.first_name} ✨\n'\
-                f'🛎️ Куда направимся сегодня? 🧭'
-        bot.send_message(id, text, reply_markup=kb.main_kb)
+        user = db.get_me(id)
+        if user['locate'] == 'training':
+            bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+            return
 
-@bot.callback_query_handler(lambda call: call.data == 'start')
-def start_call(call):
+        if gl.has_time_passed(user['buster_x10_time_all']) == False:
+            text = f'🌟 Профиль 🌟\n'\
+                    f'══════════════\n'\
+                    f'🆔 Твой ID: {id}\n'\
+                    f'💰 Монет: {user["money"]}\n'\
+                    f'🪙 Золотых монет: {user["gold_money"]}\n'\
+                    f'══════════════'
+        else:
+            text = f'🌟 Профиль 🌟\n'\
+                    f'══════════════\n'\
+                    f'🆔 Твой ID: {id}\n'\
+                    f'💰 Монет: {user["money"]}\n'\
+                    f'🪙 Золотых монет: {user["gold_money"]}\n'\
+                    f'⚡У тебя активирован бустер:\n'\
+                    f'⏳⚡Быстрее в 10 раз\n'\
+                    f'══════════════'
+        bot.send_message(id, text, reply_markup=kb.profile_kb)
+    db.edit_locate(id, 'start')
+
+# Обучение
+
+@bot.callback_query_handler(lambda call: call.data == 'pass_training')
+def pass_training(call):
     id = call.from_user.id
     db = Database()
-    if db.check_users(id) == True: # Проверка на существование пользователя в БД
-        db.set_user(id, gl.end_time(4))
-        db.set_farm(id)
-        db.set_bed(id, 1, gl.end_time(8))
-        db.set_inventory(id, 1, 10)
-        info_of_user = db.get_info_for_tasks(id)
-        db.set_tasks(id, gl.generate_tasks(info_of_user))
-        text = f'🌻 Привет, будущий фермер! 🌻\n'\
-                f'Перед тобой бескрайние поля, где:\n'\
-                f'• Каждое семя — начало новой истории\n'\
-                f'• Каждый урожай — маленькое достижение\n'\
-                f'• Каждый день приносит что-то новое\n'\
-                f'Ферма ждет твоего прикосновения.\n'
-        bot.delete_message(id, call.message.message_id)
-        bot.send_message(id, text, reply_markup=kb.main_kb)
-    else:
-        text = f'✨ Здарова, {call.from_user.first_name} ✨\n'\
-                f'🛎️ Куда направимся сегодня? 🧭'
-        bot.delete_message(id, call.message.message_id)
-        bot.send_message(id, text, reply_markup=kb.main_kb)
+    db.edit_locate(id, 'training')
+    text = "🌾 *Добро пожаловать на ферму!* 🌾\n\n"\
+           "Давай начнём с осмотра твоих владений."
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.farm_kb, parse_mode='Markdown')
 
-@bot.message_handler(regexp='Профиль')
+@bot.callback_query_handler(lambda call: call.data == 'bed_training')
+def bed_training(call):
+    id = call.from_user.id
+    text =  "🪱 *[ Твоя первая грядка ]* 🪱\n\n"\
+            "▸ 🎯 *Доступно лунок:* 5\n"\
+            "▸ 🛠️ *Грабли:* ❌\n"\
+            "▸ 🌱 *Состояние:* Пусто\n"\
+            "▸ 💧 *Влажность почвы:* 100%\n\n"\
+            "*Как это работает:*\n"\
+            "1️⃣ Нужно посадить семена\n"\
+            "2️⃣ Для сбора урожая потребуются грабли\n"\
+            "3️⃣ Всё необходимое найдёшь в магазине\n\n"\
+            "Давай отправимся за покупками!"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.in_shop_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'in_shop')
+def in_shop(call):
+    id = call.from_user.id
+    text = "🏪 *Магазин фермера*\n\n"\
+           "Здесь ты можешь приобрести всё необходимое для работы.\n"\
+           "Давай начнём с выбора семян!"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.seeds_training_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'seed')
+def seed(call):
+    id = call.from_user.id
+    text = "🌾 *Отдел семян*\n\n"\
+           "Остался последний пакет пшеницы!\n"\
+           "Отличный выбор для начала - пшеница неприхотлива и быстро растёт."
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.buy_wheat_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'buy_wheat_training')
+def buy_wheat_training(call):
+    id = call.from_user.id
+    text = "📦 *Пшеничные семена*\n\n"\
+           "В наличии как раз 5 пакетиков - идеально для твоей грядки!\n"\
+           "Хватай пока не разобрали!"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.buy_wheat_5_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'buy_wheat_5')
+def buy_wheat_5(call):
+    id = call.from_user.id
+    text = "✅ *Отличная покупка!*\n\n"\
+           "Семена пшеницы теперь в твоём инвентаре!\n\n"\
+           "Теперь нужно приобрести грабли - без них урожай не собрать."
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.rake_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'rake_training')
+def rake_training(call):
+    id = call.from_user.id
+    text = "🛠️ *Отдел инвентаря*\n\n"\
+           "Для начала подойдут простые *деревянные грабли*.\n"\
+           "Позже ты сможешь приобрести более профессиональные инструменты."
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.buy_rake_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'buy_rake_training')
+def buy_rake_training(call):
+    id = call.from_user.id
+    text = "🎉 *Базовый набор готов!*\n\n"\
+           "Теперь у тебя есть всё необходимое:\n"\
+           "▸ Семена пшеницы\n"\
+           "▸ Деревянные грабли\n\n"\
+           "Возвращаемся на ферму - время поработать!"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.farm_work_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'farm_work')
+def farm_work(call):
+    id = call.from_user.id
+    text =  "🪱 *[ Твоя грядка ]* 🪱\n\n"\
+            "▸ 🎯 *Лунок:* 5\n"\
+            "▸ 🛠️ *Грабли:* Деревянные ✅\n"\
+            "▸ 🌱 *Состояние:* Пусто\n"\
+            "▸ 💧 *Влажность:* 100%\n\n"\
+            "Пора посадить наши семена пшеницы!"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.set_seed_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'set_seed_training')
+def set_seed_training(call):
+    id = call.from_user.id
+    text = "🌱 *Посадка завершена!*\n\n"\
+           "Семена пшеницы успешно высажены!\n\n"\
+           "Для обучения ускорю процесс - урожай уже готов к сбору!"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.get_harvest_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'get_harvest_training')
+def get_harvest_training(call):
+    id = call.from_user.id
+    text = "🎉 *Первый урожай!*\n\n"\
+           "Ты получил:\n"\
+           "▸ 5 единиц пшеницы\n"\
+           "▸ Редкий ресурс: *Молекула дождя* 🌧️\n\n"\
+           "*Интересный факт:*\n"\
+           "Редкие ресурсы используются для покупки эксклюзивного инвентаря!\n\n"\
+           "Теперь покажу, как продавать урожай."
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.go_buyer_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'go_buyer')
+def go_buyer(call):
+    id = call.from_user.id
+    text = "👨‍🌾 *Местный скупщик*\n\n"\
+           "Здесь ты можешь быстро продать свой урожай за монеты.\n"\
+           "Не самый выгодный, но самый простой способ заработка."
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.sell_harvest_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'sell_harvest_training')
+def sell_harvest_training(call):
+    id = call.from_user.id
+    text = "💰 *Продажа завершена!*\n\n"\
+           "Ты получил свои первые монеты!\n\n"\
+           "Но это не единственный способ заработка.\n"\
+           "Покажу более выгодный вариант..."
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.go_market_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'go_market')
+def go_market(call):
+    id = call.from_user.id
+    text = "🏪 *Фермерский рынок*\n\n"\
+           "@farmhappymarket\n\n"\
+           "Здесь ты можешь:\n"\
+           "▸ Продавать товары другим игрокам\n"\
+           "▸ Покупать товары по выгодным ценам\n"\
+           "▸ Находить редкие ресурсы\n\n"\
+           "Отличное место для выгодных сделок!"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.end_training_kb, parse_mode='Markdown')
+
+@bot.callback_query_handler(lambda call: call.data == 'end_training')
+def end_training(call):
+    id = call.from_user.id
+    text = "🎓 *Обучение завершено!*\n\n"\
+           "Теперь ты знаешь основы фермерства:\n"\
+           "▸ Как выращивать урожай\n"\
+           "▸ Как продавать товары\n"\
+           "▸ Где искать лучшие сделки\n\n"\
+           "Желаю обильных урожаев и больших прибылей!\n"\
+           "Вперёд к новым достижениям! 🌟"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.go_game_kb, parse_mode='Markdown')
+
+
+
+@bot.message_handler(commands=['profile'])
 def profile(message):
     id = message.from_user.id
     db = Database()
     user = db.get_me(id)
+
+    if user['locate'] == 'training':
+        bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+        return
+    
     if gl.has_time_passed(user['buster_x10_time_all']) == False:
         text = f'🌟 Профиль 🌟\n'\
                 f'══════════════\n'\
@@ -84,7 +244,6 @@ def profile(message):
                 f'⚡У тебя активирован бустер:\n'\
                 f'⏳⚡Быстрее в 10 раз\n'\
                 f'══════════════'
-    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.profile_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'profile')
@@ -187,18 +346,25 @@ def get_reward(call):
     db.edit_get_reward(id)
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_tasks_kb)
 
-@bot.message_handler(regexp='Инвентарь')
+@bot.message_handler(commands=['inventory'])
 def inventory(message):
     id = message.from_user.id
     db = Database()
+    user = db.get_me(id)
+
+    if user['locate'] == 'training':
+        bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+        return
+    
     items = db.get_inventory(id)
-    text = ''
+    text = '🧰 Инвентарь\n\n'
     if not items:
         text = f'Твой инветарь пуст!'
     
     for item in items:
-        text += f"│ {item['name']} │ x{item['quantity']} │\n"
-    bot.delete_messages(id, [message.message_id, message.message_id-1])
+        text += f"🆔 {item['item_id']} │ {item['name']} │ x{item['quantity']} │\n"
     bot.send_message(id, text, reply_markup=kb.box_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'inventory')
@@ -214,11 +380,19 @@ def inventory(call):
         text += f"│ {item['name']} │ x{item['quantity']} │\n"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.box_kb)
 
-@bot.message_handler(regexp='Город')
+@bot.message_handler(commands=['city'])
 def city(message):
     id = message.from_user.id 
+    db = Database()
+    user = db.get_me(id)
+
+    if user['locate'] == 'training':
+        bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+        return
+    
     text = f"➡️ Выбери направление:"
-    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.city_kb)
 
 @bot.callback_query_handler(lambda call: call.data == 'city')
@@ -791,14 +965,21 @@ def replace_rake(call):
         bot.answer_callback_query(call.id, text)
 
 
-@bot.message_handler(regexp='Ферма')
+@bot.message_handler(commands=['farm'])
 def farm(message):
     id = message.from_user.id
     db = Database()
+    user = db.get_me(id)
+
+    if user['locate'] == 'training':
+        bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+        return
+    
     user_farm = db.get_farm(id)
     text = f"🌻 Твоя ферма:\n"\
             f'Выбери грядку, которую ты хочешь обработать'
-    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.make_beds(user_farm['amount_beds'])[0])
 
 @bot.callback_query_handler(lambda call: call.data == 'farm')
@@ -2465,6 +2646,13 @@ def handle_sell(message):
     id = message.from_user.id
     db = Database()
     user = db.get_me(id)
+
+    if user['locate'] == 'training':
+        bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+        return
+    
     user_market = db.get_products_user(id)
     if len(user_market) == user['max_product']:
         bot.send_message(id, 'У тебя нет свободных слотов', reply_markup=kb.back_main_menu_kb)
@@ -2475,7 +2663,6 @@ def handle_sell(message):
                                 "Цена ставится за общее количетсво товара", reply_markup=kb.back_main_menu_kb)
         return
     item_id, quantity, price = args[0], args[1], args[2]
-    bot.delete_messages(id, [message.message_id, message.message_id-1])
     try:
         item_id = int(item_id)
         quantity = int(quantity)
@@ -2589,11 +2776,25 @@ def slot_cancel(call):
 
 
 
-@bot.message_handler(regexp='Помощь')
+@bot.message_handler(commands=['support'])
+def support(message):
+    id = message.from_user.id
+    db = Database()
+    user = db.get_me(id)
+
+    if user['locate'] == 'training':
+        bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+        return
+
+    text = f'✉️ Чтобы написать о своей(ем) проблеме/вопросе используй команду /report [текст проблемы]'
+    bot.send_message(id, text, reply_markup=kb.support_kb)
+
+@bot.callback_query_handler(lambda call: call.data == 'support')
 def support(message):
     id = message.from_user.id
     text = f'✉️ Чтобы написать о своей(ем) проблеме/вопросе используй команду /report [текст проблемы]'
-    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.support_kb)
 
 @bot.message_handler(commands=['report'])
@@ -2604,6 +2805,15 @@ def report(message):
 
     id = message.from_user.id
     db = Database()
+    user = db.get_me(id)
+
+    if user['locate'] == 'training':
+        bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+        return
+
+
     text_report = message.text[8:]
 
     if text_report == '':
@@ -2621,7 +2831,6 @@ def report(message):
                         f'Текст: {text_report}'
 
     text = f'✅ Обращение получено'
-    bot.delete_messages(id, [message.message_id, message.message_id-1])
     bot.send_message(id, text, reply_markup=kb.back_main_menu_kb)
     bot.send_message(ID_CHAT_REPORTS, text_for_support)
 
@@ -2678,9 +2887,16 @@ def report_id(message):
     '''
     id = message.from_user.id
     db = Database()
+    user = db.get_me(id)
+    
+    if user['locate'] == 'training':
+        bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+        return
+    
     args = message.text.split(maxsplit=2)[1:]
     id_report, text = args[0], args[1]
-    bot.delete_messages(id,  [message.message_id, message.message_id-1])
     try:
         id_report = int(id_report)
         info_report = db.get_report(id_report)
@@ -2698,7 +2914,22 @@ def report_id(message):
     except ValueError:
         bot.send_message(id, 'ID обращения должно быть цклым числом', reply_markup=kb.back_main_menu_kb)
 
+@bot.callback_query_handler(lambda call: call.data == 'my_reports')
+def my_reports(call):
+    id = call.from_user.id
+    db = Database()
+    reports = db.get_report_addressing(id)
+    text = f"Твои активные обращения:\n"
+    for report in reports:
+        text += f"ID: {report['id']}\n"
+        if report['state'] == 0:
+            text += f"Состояние: Новое обращение"
+        else:
+            text += f"Состояние: Решается"
+        text += f"Текст обращения: \n"\
+                f"{report['text']}\n\n"
 
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_support_kb)
 
 
 
