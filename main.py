@@ -268,6 +268,7 @@ def profile(call):
                 f'⏳⚡Быстрее в 10 раз\n'\
                 f'══════════════'
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.profile_kb)
+    db.edit_locate(id, 'profile')
 
 @bot.callback_query_handler(lambda call: call.data == 'clans')
 def clans(call):
