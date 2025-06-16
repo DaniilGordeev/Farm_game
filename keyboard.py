@@ -1,20 +1,10 @@
 from telebot import types
 
-main_kb = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=2)
-main_kb.add(
-    types.KeyboardButton('🌾 Ферма'),
-    types.KeyboardButton('🏙️ Город'),
-    types.KeyboardButton('👤 Профиль'),
-    types.KeyboardButton('🎒 Инвентарь'),
-    types.KeyboardButton('🆘 Помощь')
-)
-
 profile_kb = types.InlineKeyboardMarkup()
 profile_kb.add(
     types.InlineKeyboardButton('🏰 Кланы', callback_data='clans'),
     types.InlineKeyboardButton('📜 Задания', callback_data='tasks'),
     types.InlineKeyboardButton('💎 Донат', callback_data='donate'),
-    types.InlineKeyboardButton('🔙 Назад', callback_data='start')
 )
 
 back_profile_kb = types.InlineKeyboardMarkup()
@@ -26,7 +16,7 @@ city_kb.add(
     types.InlineKeyboardButton('🏪 Рынок', callback_data='market'),
     types.InlineKeyboardButton('🎰 Казино', callback_data='casino'),
     types.InlineKeyboardButton('💰 Скупщик', callback_data='buyer'),
-    types.InlineKeyboardButton('🔙 Назад', callback_data='start')
+    
 )
 
 shop_kb = types.InlineKeyboardMarkup(row_width=2)
@@ -119,8 +109,6 @@ def make_beds(amount_beds):
             )
         else:
             beds_2_kb.add(types.InlineKeyboardButton('⚡ Бустеры', callback_data='busters'))
-        beds_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='start'))
-        beds_2_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='start'))
         return [beds_kb, beds_2_kb]
     else:
         for bed in range(1, amount_beds+1):
@@ -129,7 +117,6 @@ def make_beds(amount_beds):
             types.InlineKeyboardButton('🛒 Купить грядку', callback_data='buy_bed'),
             types.InlineKeyboardButton('⚡ Бустеры', callback_data='busters')
         )
-        beds_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='start'))
         return [beds_kb]
 
 buy_beds_kb = types.InlineKeyboardMarkup()
@@ -239,7 +226,7 @@ back_tasks_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='t
 box_kb = types.InlineKeyboardMarkup()
 box_kb.add(
     types.InlineKeyboardButton('🎁 Открыть бокс', callback_data='box'),
-    types.InlineKeyboardButton('🔙 Назад', callback_data='start')
+    
 )
 
 def open_box(user_inventory):
@@ -307,7 +294,7 @@ roulette_kb.add(
 roulette_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='casino_back'))
 
 back_casino_kb = types.InlineKeyboardMarkup()
-back_casino_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='casino'))
+back_casino_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='casino_back'))
 
 dice_kb = types.InlineKeyboardMarkup()
 dice_kb.add(
@@ -352,11 +339,65 @@ back_market_kb.add(
 
 support_kb = types.InlineKeyboardMarkup()
 support_kb.add(
-    types.InlineKeyboardButton('📢 Мои обращения', callback_data='my_reports'),
-    types.InlineKeyboardButton('🔙 Назад', callback_data='start')
+    types.InlineKeyboardButton('📢 Мои обращения', callback_data='my_reports')
 )
+
+back_support_kb = types.InlineKeyboardMarkup()
+back_support_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='support'))
+
 
 back_main_menu_kb = types.InlineKeyboardMarkup()
 back_main_menu_kb.add(
-    types.InlineKeyboardButton('🏠 На главную', callback_data='start')
+    types.InlineKeyboardButton('🏠 На главную', callback_data='profile')
 )
+
+start_kb = types.InlineKeyboardMarkup()
+start_kb.add(types.InlineKeyboardButton('👣 Пройти обучение', callback_data='pass_training'))
+
+farm_kb = types.InlineKeyboardMarkup()
+farm_kb.add(types.InlineKeyboardButton('🦶 Войти на грядку', callback_data='bed_training'))
+
+in_shop_kb = types.InlineKeyboardMarkup()
+in_shop_kb.add(types.InlineKeyboardButton('🏪 В магазин', callback_data='in_shop'))
+
+seeds_training_kb = types.InlineKeyboardMarkup()
+seeds_training_kb.add(types.InlineKeyboardButton('🌱 Семена', callback_data='seed'))
+
+buy_wheat_kb = types.InlineKeyboardMarkup()
+buy_wheat_kb.add(types.InlineKeyboardButton('🌾 Пшеница', callback_data='buy_wheat_training'))
+
+buy_wheat_5_kb = types.InlineKeyboardMarkup()
+buy_wheat_5_kb.add(types.InlineKeyboardButton('5️⃣', callback_data='buy_wheat_5'))
+
+rake_kb = types.InlineKeyboardMarkup()
+rake_kb.add(types.InlineKeyboardButton('🛠️ Грабли', callback_data='rake_training'))
+
+buy_rake_kb = types.InlineKeyboardMarkup()
+buy_rake_kb.add(types.InlineKeyboardButton('🛒 Купить грабли', callback_data='buy_rake_training'))
+
+farm_work_kb = types.InlineKeyboardMarkup()
+farm_work_kb.add(types.InlineKeyboardButton('На ферму', callback_data='farm_work'))
+
+set_seed_kb = types.InlineKeyboardMarkup()
+set_seed_kb.add(types.InlineKeyboardButton('Посадить семена', callback_data='set_seed_training'))
+
+get_harvest_kb = types.InlineKeyboardMarkup()
+get_harvest_kb.add(types.InlineKeyboardButton('Собрать урожай', callback_data='get_harvest_training'))
+
+go_buyer_kb = types.InlineKeyboardMarkup()
+go_buyer_kb.add(types.InlineKeyboardButton('Пошли', callback_data='go_buyer'))
+
+sell_harvest_kb = types.InlineKeyboardMarkup()
+sell_harvest_kb.add(types.InlineKeyboardButton('Продать урожай', callback_data='sell_harvest_training'))
+
+go_market_kb = types.InlineKeyboardMarkup()
+go_market_kb.add(types.InlineKeyboardButton('Пошли', callback_data='go_market'))
+
+end_training_kb = types.InlineKeyboardMarkup()
+end_training_kb.add(types.InlineKeyboardButton('Понял', callback_data='end_training'))
+
+go_game_kb = types.InlineKeyboardMarkup()
+go_game_kb.add(types.InlineKeyboardButton('Погнали играть!', callback_data='profile'))
+
+continue_training_kb = types.InlineKeyboardMarkup()
+continue_training_kb.add(types.InlineKeyboardButton('Продолжить', callback_data='continue_training'))
