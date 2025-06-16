@@ -328,9 +328,9 @@ class Database:
             INSERT INTO bed
             (id_bed, id_owner, state, watering, id_planted, time_end_watering, 
             time_end, holes, chance_resistance, resistance, watering_hours,
-            up_speed_rate, last_price_added_holes, notify)
+            up_speed_rate, last_price_added_holes)
             VALUES
-            (?, ?, 0, 100, 0, ?, 0, 5, 20, 0, 8, 0, 10000, 0)
+            (?, ?, 0, 100, 0, ?, 0, 5, 20, 0, 8, 0, 10000)
             ''',
             (self._id_bed, self._id, self._time_end_watering, ),
         )
