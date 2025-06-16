@@ -2960,7 +2960,7 @@ def send_notification_harvest():
     users = db.get_id_users_ready_harvest()
     for user in users:
         if gl.check_time(user['time_end']):
-            bot.send_message(user['id_owner'], f'На грядке №{user['id_bed']} вырос урожай')
+            bot.send_message(user['id_owner'], f"На грядке №{user['id_bed']} вырос урожай")
             db.set_state_bed(user['id_owner'], user['id_bed'], 2)
 
 
