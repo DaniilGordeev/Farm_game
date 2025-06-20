@@ -5,7 +5,8 @@ import time
 
 
 
-from config import TOKEN, HARVEST, PRICE_UPGRADE_DISEASE_RESISTANCE, PRICE_UPGRADE_TIME_WATERING, PRICE_BUY_BEDS, ID_CHANNEL, ID_ITEM_FOR_SELL, ID_CHAT_REPORTS
+from config import TOKEN, HARVEST, PRICE_UPGRADE_DISEASE_RESISTANCE, PRICE_UPGRADE_TIME_WATERING, \
+                    PRICE_BUY_BEDS, ID_CHANNEL_MARKET, ID_CHANNEL_NEWS, ID_ITEM_FOR_SELL, ID_CHAT_REPORTS
 from database import Database
 import keyboard as kb
 import game_logic as gl
@@ -14,6 +15,7 @@ import create_table
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
+create_table.update_database_schema()
 
 @bot.callback_query_handler(lambda call: call.data == 'continue_training')
 def continue_training(call):
@@ -30,7 +32,7 @@ def start(message):
         db.set_bed(id, 1, gl.end_time(8))
         db.set_inventory(id, 1, 10)
         info_of_user = db.get_info_for_tasks(id)
-        db.set_tasks(id, gl.generate_tasks(info_of_user))
+        db.set_tasks(id, gl.generate_tasks(info_of_user, user['money']))
         text = f'🌻 Привет, будущий фермер! 🌻\n'\
                 f'Перед тобой бескрайние поля, где:\n'\
                 f'• Каждое семя — начало новой истории\n'\
@@ -754,7 +756,7 @@ def buy_wood_rake(call):
     db.edit_locate(id, 'buy_wood_rake')
     item = db.get_items_id(7)
     text =  f"🪓 ДЕРЕВЯННЫЕ ГРАБЛИ 🪓\n"\
-            f"├ 🛡️ Прочность: 50 использований\n"\
+            f"├ 🛡️ Прочность: 20 использований\n"\
             f"└ 💰 Цена: {item['price']} монет\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
@@ -768,7 +770,7 @@ def buy_iron_rake(call):
     item = db.get_items_id(9)
     text =  f"🔨 ЖЕЛЕЗНЫЕ ГРАБЛИ 🔨\n"\
             f"├ 🚜 Эффект: +2 к урожаю с грядки\n"\
-            f"├ 🛡️ Прочность: 100 использований\n"\
+            f"├ 🛡️ Прочность: 30 использований\n"\
             f"└ 💰 Цена: {item['price']} монет\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
@@ -782,7 +784,7 @@ def buy_steel_rake(call):
     item = db.get_items_id(8)
     text =  f"🔧 СТАЛЬНЫЕ ГРАБЛИ 🔧\n"\
             f"├ 🌟 Эффект: +3🍅 к урожаю с грядки\n"\
-            f"├ 🛡️ Прочность: 150 использований\n"\
+            f"├ 🛡️ Прочность: 40 использований\n"\
             f"└ 💰 Цена: {item['price']} монет\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
@@ -797,7 +799,7 @@ def buy_rain_rake(call):
     text =  f"☔ ГРАБЛИ ДОЖДЯ ☔\n"\
             f"├ 🌊 Эффект: 2x влажность грядок\n"\
             f"├ ⚠ Особенность: -1 прочность за полив/сбор\n"\
-            f"├ 🛡️ Прочность: 15 использований\n"\
+            f"├ 🛡️ Прочность: 50 использований\n"\
             f"├ 💰 Цена: \n"\
             f"├ 🪙 {item['price']} монет\n"\
             f"└ 💧 5 молекул дождя\n"\
@@ -813,7 +815,7 @@ def buy_dreams_rake(call):
     item = db.get_items_id(11)
     text =  f"✨ ГРАБЛИ СНОВИДЕНИЙ ✨\n"\
             f"├ 🌙 Эффект: 2x урожай (22:00-8:00 МСК)\n"\
-            f"├ 🛡️ Прочность: 150 использований\n"\
+            f"├ 🛡️ Прочность: 50 использований\n"\
             f"├ 💰 Цена: \n"\
             f"├ 🪙 {item['price']} монет\n"\
             f"└ 🌿 5 сновиденческие травы\n"\
@@ -829,7 +831,7 @@ def buy_quantum_rake(call):
     item = db.get_items_id(12)
     text =  f"🌌 КВАНТОВЫЕ ГРАБЛИ 🌌\n"\
             f"├ ⚡ Эффект: 50% шанс 2x урожая\n"\
-            f"├ 🛡️ Прочность: 200 квантовых циклов\n"\
+            f"├ 🛡️ Прочность: 50 квантовых циклов\n"\
             f"├ 💰 Цена: \n"\
             f"├ 🪙 {item['price']} монет\n"\
             f"└ ⚛️ 5 квантовых обломоков\n"\
@@ -1584,10 +1586,10 @@ def set_seeds_1(call):
     user_locate = int(db.get_me(id)['locate'][4:])
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 1)
-    end_time = gl.end_time(growth_minutes=30)
+    end_time = gl.end_time(growth_minutes=10)
 
     if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=3)
+        end_time = gl.end_time(growth_minutes=1)
 
     if user_inventory['quantity'] >= user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1619,10 +1621,10 @@ def set_seeds_2(call):
     user_locate = int(db.get_me(id)['locate'][4:])
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 2)
-    end_time = gl.end_time(growth_minutes=45)
+    end_time = gl.end_time(growth_minutes=20)
 
     if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=5)
+        end_time = gl.end_time(growth_minutes=2)
 
     if user_inventory['quantity'] >= user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1654,10 +1656,10 @@ def set_seeds_3(call):
     user_locate = int(db.get_me(id)['locate'][4:])
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 3)
-    end_time = gl.end_time(growth_hours=1)
+    end_time = gl.end_time(growth_minutes=30)
 
     if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=6)
+        end_time = gl.end_time(growth_minutes=3)
 
     if user_inventory['quantity'] >= user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1689,10 +1691,10 @@ def set_seeds_4(call):
     user_locate = int(db.get_me(id)['locate'][4:])
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 4)
-    end_time = gl.end_time(growth_hours=2)
+    end_time = gl.end_time(growth_minutes=45)
 
     if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=12)
+        end_time = gl.end_time(growth_minutes=5)
 
     if user_inventory['quantity'] >= user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1724,10 +1726,10 @@ def set_seeds_5(call):
     user_locate = int(db.get_me(id)['locate'][4:])
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 5)
-    end_time = gl.end_time(growth_hours=4, growth_minutes=30)
+    end_time = gl.end_time(growth_hours=4)
 
     if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=27)
+        end_time = gl.end_time(growth_minutes=24)
 
     if user_inventory['quantity'] >= user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1759,10 +1761,10 @@ def set_seeds_6(call):
     user_locate = int(db.get_me(id)['locate'][4:])
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 6)
-    end_time = gl.end_time(growth_hours=6)
+    end_time = gl.end_time(growth_hours=2, growth_minutes=30)
 
     if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=36)
+        end_time = gl.end_time(growth_minutes=15)
 
     if user_inventory['quantity'] >= user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']):
@@ -2528,6 +2530,25 @@ def dice(call):
         bot.delete_message(id, call.message.message_id)
         bot.send_message(id, text, reply_markup=kb.dice_kb)
 
+@bot.callback_query_handler(lambda call: call.data == 'dice_back')
+def dice(call):
+    id = call.from_user.id
+    db = Database()
+    user = db.get_me(id)
+    if user['money'] < 10:
+        text = 'Тебе нехватает на минимальную ставку в 10 монет'
+        bot.delete_message(id, call.message.message_id)
+        bot.send_message(id, text, reply_markup=kb.back_casino_kb)
+    else:
+        user_casino = db.get_casino(id)
+        text = f"💰 *Текущая ставка* 💰\n"\
+                f"══════════════════\n"\
+                f"🔘 Поставлено: {user_casino['bid']}\n"\
+                f"💳 Доступно: {user['money']}\n"\
+                f"══════════════════\n"
+        bot.delete_message(id, call.message.message_id)
+        bot.send_message(id, text, reply_markup=kb.dice_kb)
+
 @bot.callback_query_handler(lambda call: call.data == 'bid_user_dice_d2')
 def bid_user_dice_d2(call):
     id = call.from_user.id
@@ -2649,7 +2670,7 @@ def post_listing(id, item_id, price, quantity):
             f"*Товар:* {item_info['name']}\n"\
             f"*Количество:* {quantity}\n"\
             f"*Цена:* {price} монет"
-    mesg = bot.send_message(ID_CHANNEL, text, reply_markup=kb.product(post_id))
+    mesg = bot.send_message(ID_CHANNEL_MARKET, text, reply_markup=kb.product(post_id))
     db.set_message_id_product(post_id, mesg.message_id)
 
 @bot.message_handler(commands=['sell'])
@@ -2726,7 +2747,7 @@ def handle_buy(call):
     db.edit_money(id, post['price'])
     db.set_inventory(id, post['id_item'], post['quantity'])
     db.add_money(post['id_owner'], post['quantity'])
-    bot.delete_message(ID_CHANNEL, call.message.message_id)
+    bot.delete_message(ID_CHANNEL_MARKET, call.message.message_id)
 
     bot.send_message(post['id_owner'], 
                      f"У тебя купили {info_item['name']} в количестве {post['quantity']}", reply_markup=kb.back_main_menu_kb)
@@ -2782,7 +2803,7 @@ def slot_cancel(call):
     
     db.set_inventory(id, post['id_item'], post['quantity'])
     db.delete_product(slot_id)
-    bot.delete_message(ID_CHANNEL, post['message_id'])
+    bot.delete_message(ID_CHANNEL_MARKET, post['message_id'])
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_market_kb)
 
 
@@ -2948,6 +2969,97 @@ def my_reports(call):
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_support_kb, parse_mode='html')
 
 
+@bot.message_handler(commands=['daily_bonus'])
+def daily_bonus(message):
+    id = message.from_user.id
+    db = Database()
+    user = db.get_me(id)
+
+    if user['daily_bonus'] == 0:
+        text = f"🎁 <b>Ежедневный бонус</b> 🎁\n\n"\
+               f"Сегодня ты можешь получить:\n"\
+               f"💰 <i>Монеты</i>\n"\
+               f"📦 <i>Рандомный бокс</i>\n"\
+               f"🌱 <i>Семена</i>\n\n"\
+               f"📌 <b>Условие:</b> нужно быть подписанным на канал\n"\
+               f"🌐 <b>Новостной паблик Happy Farm:</b> @newsHappyFarm\n\n"\
+               f"🔹 После подписки нажми кнопку <b>'Проверить подписку'</b>"
+        bot.send_message(id, text, reply_markup=kb.check_follow_kb, parse_mode='HTML')
+    else:
+        text = f"⏳ <b>Бонус уже получен!</b>\n\n"\
+               f"Ты сегодня уже забирал свой подарок.\n"\
+               f"🕒 Приходи завтра за новым бонусом!"
+        bot.send_message(id, text, parse_mode='HTML')
+
+@bot.callback_query_handler(lambda call: call.data == 'daily_bonus')
+def daily_bonus_call(call):
+    id = call.from_user.id
+    db = Database()
+    user = db.get_me(id)
+
+    if user['daily_bonus'] == 0:
+        text = f"🎁 <b>Ежедневный бонус</b> 🎁\n\n"\
+               f"Сегодня ты можешь получить:\n"\
+               f"💰 <i>Монеты</i>\n"\
+               f"📦 <i>Рандомный бокс</i>\n"\
+               f"🌱 <i>Семена</i>\n\n"\
+               f"📌 <b>Условие:</b> нужно быть подписанным на канал\n"\
+               f"🌐 <b>Новостной паблик Happy Farm:</b> @newsHappyFarm\n\n"\
+               f"🔹 После подписки нажми кнопку <b>'Проверить подписку'</b>"
+        bot.edit_message_text(text, id, call.message.message_id, 
+                            reply_markup=kb.check_follow_kb, parse_mode='HTML')
+    else:
+        text = f"⏳ <b>Бонус уже получен!</b>\n\n"\
+               f"Ты сегодня уже забирал свой подарок.\n"\
+               f"🕒 Приходи завтра за новым бонусом!"
+        bot.edit_message_text(text, id, call.message.message_id, parse_mode='HTML')
+
+@bot.callback_query_handler(lambda call: call.data == 'check_follow')
+def check_follow(call):
+    id = call.from_user.id
+    try:
+        member = bot.get_chat_member(ID_CHANNEL_NEWS, id)
+        if member.status in ['member', 'administrator', 'creator']:
+            bot.edit_message_reply_markup(id, call.message.message_id, 
+                                        reply_markup=kb.get_daily_bonus_kb)
+            bot.answer_callback_query(call.id, "✅ Подписка подтверждена! Можешь забирать бонус")
+        else:
+            bot.answer_callback_query(call.id, '❌ Ты не подписан на канал!', show_alert=True)
+    except Exception as e:
+        bot.answer_callback_query(call.id, f'⚠️ Ошибка: {e}', show_alert=True)
+
+@bot.callback_query_handler(lambda call: call.data == 'get_daily_bonus')
+def get_daily_bonus(call):
+    id = call.from_user.id
+    db = Database()
+    user = db.get_me(id)
+
+    if user['daily_bonus'] == 1:
+        text = f"⏳ Ты уже забирал сегодняшний бонус!"
+        bot.delete_message(id, call.message.message_id)
+        bot.answer_callback_query(call.id, text, show_alert=True)
+        return
+    
+    reward = gl.generate_random_daily_bonus()
+    info_item = db.get_items_id(reward[0])
+
+    text = f"🎉 <b>Поздравляем с получением бонуса!</b> 🎉\n\n"\
+           f"Ты получил:\n"\
+           f"🎁 <b>{info_item['name']}</b> x{reward[1]}\n\n"\
+           f"🕒 Следующий бонус будет доступен завтра!"
+           
+    bot.edit_message_text(text, id, call.message.message_id, parse_mode='HTML')
+    if reward[0] == 0:
+        db.add_money(id, reward[1])
+    else:
+        db.set_inventory(id, reward[0], reward[1])
+    db.set_daily_bonus(id, 1)
+
+    
+
+
+
+# Временные функции 
 
 def update_tasks():
     db = Database()

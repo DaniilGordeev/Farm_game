@@ -40,9 +40,9 @@ class Database:
         self._cursor.execute(
             '''
             INSERT INTO user
-            (id, money, locate, gold_money, max_product, message_id_bot, buster_x10_time_all)
+            (id, money, locate, gold_money, max_product, message_id_bot, buster_x10_time_all, daily_bonus)
             VALUES
-            (?, 400, 'start', 0, 3, 0, ?)
+            (?, 400, 'start', 0, 3, 0, ?, 0)
             ''',
             (self._id, self._buster_time, )
         )
@@ -138,6 +138,20 @@ class Database:
             WHERE id = ?
             ''',
             (self._locate, self._id, )
+        )
+        self._db.commit()
+
+    def set_daily_bonus(self, id, state):
+        self._id = id
+        self._state = state
+
+        self._cursor.execute(
+            '''
+            UPDATE user
+            SET daily_bonus = ?
+            WHERE id = ?
+            ''',
+            (self._state, self._id, )
         )
         self._db.commit()
 

@@ -78,7 +78,7 @@ def random_resource():
         return random.choice([13, 14, 15, 22])
     
 
-def generate_tasks(user_data):
+def generate_tasks(user_data, user_money = 499):
     TASK = [
         'Собрать {plant} в количестве {count} шт',
         'Заработать {count} монет'
@@ -90,7 +90,7 @@ def generate_tasks(user_data):
 
     tasks = []
 
-    for i in range(2):
+    while len(tasks) < 2:
         task = random.choice(TASK)
         db = Database()
         if task == 'Заработать {count} монет':
@@ -101,13 +101,20 @@ def generate_tasks(user_data):
                 'plant': 0,
                 'required': count
             })
+
         else:
             plant = random.choice(PLANTS)
             id_plant = db.get_items_name(f'{plant} (урожай)')['item_id']
-            if plant == 'Лунный лотос' or plant == 'Огненный перец':
+
+            if plant in ['Лунный лотос', 'Огненный перец']:
+                if user_money < 500:
+                    continue
+
+            if plant in ['Лунный лотос', 'Огненный перец']:
                 count = random.randint(1, round(holes*1.5))
             else:
                 count = random.randint(holes, holes*2)
+
             text = task.format(plant=plant, count=count)
             tasks.append({
                 'text': text,
@@ -115,6 +122,7 @@ def generate_tasks(user_data):
                 'required': count,
             })
     return tasks
+
 
 
 def random_reward_tasks():
@@ -185,3 +193,39 @@ def check_time(end_time):
         return True
     
     return False
+
+def generate_random_daily_bonus():
+    rewards = ['Деньги', 'Бокс', 'Семена']
+    reward = random.choice(rewards)
+
+    if reward == 'Деньги':
+        quantity = random.randrange(100, 600, 100)
+        return [0, quantity] # ID | quantity
+    
+    if reward == 'Бокс':
+        number = random.randint(0, 100)
+        if number >= 0 and number <= 5:
+            return [26, 1]
+        elif number >= 6 and number <= 20:
+            return [25, 1]
+        elif number >= 21 and number <= 40:
+            return [24, 1]
+        else:
+            return [23, 1]
+        
+    if reward == 'Семена':
+        number = random.randint(0, 100)
+        quantity = random.randint(3, 7)
+        if 0 <= number <= 2:
+            return [5, quantity]
+        elif 3 <= number <= 9:
+            return [6, quantity]
+        elif 10 <= number <= 24:
+            return [4, quantity]
+        elif 35 <= number <= 54:
+            return [3, quantity]
+        elif 55 <= number <= 74:
+            return [2, quantity]
+        else:
+            return [1, quantity]
+

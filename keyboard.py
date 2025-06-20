@@ -311,7 +311,7 @@ dice_kb.add(
 dice_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='casino'))
 
 back_dice_kb = types.InlineKeyboardMarkup()
-back_dice_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='dice'))
+back_dice_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='dice_back'))
 
 def product(post_id):
     product_kb = types.InlineKeyboardMarkup()
@@ -401,3 +401,12 @@ go_game_kb.add(types.InlineKeyboardButton('🎮 Погнали играть!', c
 
 continue_training_kb = types.InlineKeyboardMarkup()
 continue_training_kb.add(types.InlineKeyboardButton('➡️ Продолжить', callback_data='continue_training'))
+
+
+check_follow_kb = types.InlineKeyboardMarkup()
+check_follow_kb.add(
+    types.InlineKeyboardButton('Проверить подписку', callback_data='check_follow')
+)
+
+get_daily_bonus_kb = types.InlineKeyboardMarkup()
+get_daily_bonus_kb.add(types.InlineKeyboardButton('Забрать бонус', callback_data='get_daily_bonus'))
