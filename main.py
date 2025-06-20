@@ -4,14 +4,13 @@ import threading
 import time
 
 
-
 from config import TOKEN, HARVEST, PRICE_UPGRADE_DISEASE_RESISTANCE, PRICE_UPGRADE_TIME_WATERING, \
                     PRICE_BUY_BEDS, ID_CHANNEL_MARKET, ID_CHANNEL_NEWS, ID_ITEM_FOR_SELL, ID_CHAT_REPORTS
 from database import Database
 import keyboard as kb
 import game_logic as gl
 import create_table
-
+TOKEN = "8055869737:AAEsL52Eh_jEsOSHbzQ3RjWNAJByfgY_Gd0"
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
@@ -3076,10 +3075,15 @@ def send_notification_harvest():
             bot.send_message(user['id_owner'], f"На грядке №{user['id_bed']} вырос урожай")
             db.set_state_bed(user['id_owner'], user['id_bed'], 2)
 
+def daily_bonus_reset():
+    db = Database()
+    db.reset_daily_bonus()
 
 
 schedule.every(1).minutes.do(send_notification_harvest)
 schedule.every().day.at('00:00').do(update_tasks)
+schedule.every().day.at('00:00').do(daily_bonus_reset)
+
 
 
 

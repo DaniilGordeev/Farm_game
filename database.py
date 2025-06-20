@@ -897,3 +897,12 @@ class Database:
             '''
         )
         return self._cursor.fetchall()
+    
+    def reset_daily_bonus(self):
+        self._cursor.execute(
+            '''
+            UPDATE user
+            SET daily_bonus = 0
+            '''
+        )
+        self._db.commit()

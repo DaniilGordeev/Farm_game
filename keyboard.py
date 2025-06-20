@@ -404,9 +404,7 @@ continue_training_kb.add(types.InlineKeyboardButton('➡️ Продолжить
 
 
 check_follow_kb = types.InlineKeyboardMarkup()
-check_follow_kb.add(
-    types.InlineKeyboardButton('Проверить подписку', callback_data='check_follow')
-)
+check_follow_kb.add(types.InlineKeyboardButton("🔍 Проверить подписку на канал", callback_data='check_follow'))
 
 get_daily_bonus_kb = types.InlineKeyboardMarkup()
-get_daily_bonus_kb.add(types.InlineKeyboardButton('Забрать бонус', callback_data='get_daily_bonus'))
+get_daily_bonus_kb.add(types.InlineKeyboardButton("🎁 Получить ежедневный бонус", callback_data='get_daily_bonus'))
