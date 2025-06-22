@@ -1677,14 +1677,14 @@ def set_seeds_1(call):
     id = call.from_user.id 
     db = Database()
     user = db.get_me(id)
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    if not user_locate.startswith('bed_'):
+    if not user['locate'].startswith('bed_'):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
         return
+    user_farm = db.get_farm(id)
+    user_locate = int(db.get_me(id)['locate'][4:])
+
     
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 1)
@@ -1735,14 +1735,14 @@ def set_seeds_2(call):
     id = call.from_user.id 
     db = Database()
     user = db.get_me(id)
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    if not user_locate.startswith('bed_'):
+    if not user['locate'].startswith('bed_'):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
         return
+    user_farm = db.get_farm(id)
+    user_locate = int(db.get_me(id)['locate'][4:])
+
     
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 2)
@@ -1793,14 +1793,14 @@ def set_seeds_3(call):
     id = call.from_user.id 
     db = Database()
     user = db.get_me(id)
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    if not user_locate.startswith('bed_'):
+    if not user['locate'].startswith('bed_'):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
         return
+    user_farm = db.get_farm(id)
+    user_locate = int(db.get_me(id)['locate'][4:])
+
     
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 3)
@@ -1851,14 +1851,14 @@ def set_seeds_4(call):
     id = call.from_user.id 
     db = Database()
     user = db.get_me(id)
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    if not user_locate.startswith('bed_'):
+    if not user['locate'].startswith('bed_'):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
         return
+    user_farm = db.get_farm(id)
+    user_locate = int(db.get_me(id)['locate'][4:])
+
     
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 4)
@@ -1909,14 +1909,14 @@ def set_seeds_5(call):
     id = call.from_user.id 
     db = Database()
     user = db.get_me(id)
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    if not user_locate.startswith('bed_'):
+    if not user['locate'].startswith('bed_'):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
         return
+    user_farm = db.get_farm(id)
+    user_locate = int(db.get_me(id)['locate'][4:])
+
     
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 5)
@@ -1967,14 +1967,14 @@ def set_seeds_6(call):
     id = call.from_user.id 
     db = Database()
     user = db.get_me(id)
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    if not user_locate.startswith('bed_'):
+    if not user['locate'].startswith('bed_'):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
         return
+    user_farm = db.get_farm(id)
+    user_locate = int(db.get_me(id)['locate'][4:])
+
     
     user_bed = db.get_bed(id, user_locate)
     user_inventory = db.get_item_invetory(id, 6)
