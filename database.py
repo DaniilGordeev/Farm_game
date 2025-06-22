@@ -757,17 +757,18 @@ class Database:
         return self._cursor.fetchone()
     
 
-    def set_product(self, id_owner, id_item, price, quantity):
+    def set_product(self, id_owner, id_item, price, quantity, time_delete):
         self._id_owner = id_owner
         self._id_item = id_item
         self._price = price
         self._quantity = quantity
+        self._time_delete = time_delete
 
         self._cursor.execute('''
-            INSERT INTO market (id_owner, id_item, price, quantity, message_id)
-            VALUES (?, ?, ?, ?, 0)
+            INSERT INTO market (id_owner, id_item, price, quantity, message_id, time_delete)
+            VALUES (?, ?, ?, ?, 0, ?)
             ''', 
-            (self._id_owner, self._id_item, self._price, self._quantity, )
+            (self._id_owner, self._id_item, self._price, self._quantity, self._time_delete, )
         )
         listing_id = self._cursor.lastrowid
         self._db.commit()
@@ -825,7 +826,14 @@ class Database:
         )
         self._db.commit()
 
-    
+    def get_all_product(self):
+        self._cursor.execute(
+            '''
+            SELECT id, id_owner, id_item, message_id, time_delete, quantity FROM market
+            '''
+        )
+        return self._cursor.fetchall()
+
     def set_report(self, id_addressing, text, state = 0):
         self._id_addressing = id_addressing
         self._text = text

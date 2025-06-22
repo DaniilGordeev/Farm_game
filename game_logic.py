@@ -228,4 +228,3 @@ def generate_random_daily_bonus():
             return [2, quantity]
         else:
             return [1, quantity]
-

@@ -209,7 +209,8 @@ def update_database_schema(database_name: str = 'users.db'):
             ('id_item', 'INTEGER'), 
             ('price', 'INTEGER'), 
             ('quantity', 'INTEGER'), 
-            ('message_id', 'INTEGER')
+            ('message_id', 'INTEGER'),
+            ('time_delete', 'TEXT')
         ],
         'reports': [
             ('id', 'INTEGER PRIMARY KEY AUTOINCREMENT'), 

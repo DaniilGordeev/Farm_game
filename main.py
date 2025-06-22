@@ -10,7 +10,7 @@ from database import Database
 import keyboard as kb
 import game_logic as gl
 import create_table
-
+TOKEN = "8055869737:AAEsL52Eh_jEsOSHbzQ3RjWNAJByfgY_Gd0"
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
@@ -2663,7 +2663,7 @@ def roll_dice(call):
 
 def post_listing(id, item_id, price, quantity):
     db = Database()
-    post_id = db.set_product(id, item_id, price, quantity)
+    post_id = db.set_product(id, item_id, price, quantity, gl.end_time(growth_hours=24))
     item_info = db.get_items_id(item_id)
     text = f"🛒 *Новый товар!* #{post_id}\n\n"\
             f"*Товар:* {item_info['name']}\n"\
@@ -2771,7 +2771,7 @@ def market(call):
             text += f"≡ {info_item['name']} ≡\n" \
                     f"▪ ID: {item['id']}\n" \
                     f"▪ Кол-во: {item['quantity']}\n" \
-                    f"▪ Цена: {item['price']}"
+                    f"▪ Цена: {item['price']}\n\n"
         text += f"Свободных лотов: {user['max_product'] - len(user_market)}\n\n"\
                 f'Канал с товарами: @farmhappymarket'
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.market_kb)
@@ -2974,6 +2974,12 @@ def daily_bonus(message):
     db = Database()
     user = db.get_me(id)
 
+    if user['locate'] == 'training':
+        bot.send_message(id, 
+                         "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
+                         reply_markup=kb.continue_training_kb)
+        return
+
     if user['daily_bonus'] == 0:
         text = f"🎁 <b>Ежедневный бонус</b> 🎁\n\n"\
                f"Сегодня ты можешь получить:\n"\
@@ -3079,11 +3085,24 @@ def daily_bonus_reset():
     db = Database()
     db.reset_daily_bonus()
 
+def delete_post_market():
+    db = Database()
+    products = db.get_all_product()
+    for product in products:
+        if gl.check_time(product['time_delete']):
+            db.set_inventory(product['id_owner'], product['id_item'], product['quantity'])
+            db.delete_product(product['id'])
+            bot.delete_message(ID_CHANNEL_MARKET, product['message_id'])
+            text = f"🛒 Товар #{product['id']} снят с торговой площадки.\n"\
+                    f"🔙 Все предметы были перемещены обратно в инвентарь."
+            bot.send_message(product['id_owner'], text)
+    
+
 
 schedule.every(1).minutes.do(send_notification_harvest)
 schedule.every().day.at('00:00').do(update_tasks)
 schedule.every().day.at('00:00').do(daily_bonus_reset)
-
+schedule.every(1).minutes.do(delete_post_market)
 
 
 
