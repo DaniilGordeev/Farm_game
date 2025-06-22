@@ -675,7 +675,7 @@ def quantity_buy_1(call):
 
     if not user['locate'].startswith('buy_seeds_'):
         text = f"❌ Ты не находишься в магазине\n"\
-                f"Используй команду /shop"
+                f"Используй команду /city"
         bot.send_message(id, text)
         return
 
@@ -724,7 +724,7 @@ def quantity_buy_5(call):
 
     if not user['locate'].startswith('buy_seeds_'):
         text = f"❌ Ты не находишься в магазине\n"\
-                f"Используй команду /shop"
+                f"Используй команду /city"
         bot.send_message(id, text)
         return
     
@@ -773,7 +773,7 @@ def quantity_buy_10(call):
 
     if not user['locate'].startswith('buy_seeds_'):
         text = f"❌ Ты не находишься в магазине\n"\
-                f"Используй команду /shop"
+                f"Используй команду /city"
         bot.send_message(id, text)
         return
     
@@ -924,7 +924,7 @@ def buy_rakes(call):
 
     if not user['locate'].startswith('buy_rake_'):
         text = f"❌ Ты не находишься в магазине\n"\
-                f"Используй команду /shop"
+                f"Используй команду /city"
         bot.send_message(id, text)
         return
 
@@ -998,7 +998,7 @@ def replace_rake(call):
 
     if not user['locate'].startswith('buy_rake_'):
         text = f"❌ Ты не находишься в магазине\n"\
-                f"Используй команду /shop"
+                f"Используй команду /city"
         bot.send_message(id, text)
         return
 
