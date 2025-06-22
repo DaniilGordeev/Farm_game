@@ -342,9 +342,9 @@ class Database:
             INSERT INTO bed
             (id_bed, id_owner, state, watering, id_planted, time_end_watering, 
             time_end, holes, chance_resistance, resistance, watering_hours,
-            up_speed_rate, last_price_added_holes)
+            up_speed_rate, last_price_added_holes, quantity)
             VALUES
-            (?, ?, 0, 100, 0, ?, 0, 5, 20, 0, 8, 0, 10000)
+            (?, ?, 0, 100, 0, ?, 0, 5, 20, 0, 8, 0, 10000, 0)
             ''',
             (self._id_bed, self._id, self._time_end_watering, ),
         )
@@ -378,21 +378,23 @@ class Database:
         )
         self._db.commit()
 
-    def set_seeds_bed(self, id, id_beb, state, id_planted, time_end, resistance):
+    def set_seeds_bed(self, id, id_beb, state, id_planted, time_end, resistance, quantity):
         self._id = id
         self._id_bed = id_beb
         self._state = state
         self._id_planted = id_planted
         self._time_end = time_end
         self._resistance = resistance
+        self._quantity = quantity
 
         self._cursor.execute(
             '''
             UPDATE bed
-            SET state = ?, id_planted = ?, time_end = ?, resistance = ?
+            SET state = ?, id_planted = ?, time_end = ?, resistance = ?, quantity = ?
             WHERE id_owner = ? AND id_bed = ?
             ''',
-            (self._state, self._id_planted, self._time_end, self._resistance, self._id, self._id_bed, )
+            (self._state, self._id_planted, self._time_end, \
+             self._resistance, self._quantity, self._id, self._id_bed, )
         )
         self._db.commit()
 

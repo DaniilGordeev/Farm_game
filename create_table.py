@@ -179,7 +179,8 @@ def update_database_schema(database_name: str = 'users.db'):
             ('resistance', 'INTEGER'), 
             ('watering_hours', 'INTEGER'), 
             ('up_speed_rate', 'INTEGER'), 
-            ('last_price_added_holes', 'INTEGER')
+            ('last_price_added_holes', 'INTEGER'),
+            ('quantity', 'INTEGER')
         ],
         'casino': [
             ('id', 'INTEGER'), 
