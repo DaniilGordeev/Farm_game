@@ -27,10 +27,10 @@ shop_kb.add(
 )
 
 seeds_kb = types.InlineKeyboardMarkup()
-seeds_kb.add(types.InlineKeyboardButton('🌾 Пшеница (семена)', callback_data='buy_wheat'))
-seeds_kb.add(types.InlineKeyboardButton('🥕 Морковь (семена)', callback_data='buy_carrot'))
-seeds_kb.add(types.InlineKeyboardButton('🌽 Кукуруза (семена)', callback_data='buy_corn'))
-seeds_kb.add(types.InlineKeyboardButton('🥔 Картофель (семена)', callback_data='buy_potato'))
+seeds_kb.add(types.InlineKeyboardButton('🌾 Пшеница (семена)', callback_data='buy_seeds_wheat'))
+seeds_kb.add(types.InlineKeyboardButton('🥕 Морковь (семена)', callback_data='buy_seeds_carrot'))
+seeds_kb.add(types.InlineKeyboardButton('🌽 Кукуруза (семена)', callback_data='buy_seeds_corn'))
+seeds_kb.add(types.InlineKeyboardButton('🥔 Картофель (семена)', callback_data='buy_seeds_potato'))
 seeds_kb.add(
     types.InlineKeyboardButton('1/2', callback_data='q'),
     types.InlineKeyboardButton('➡️', callback_data='seeds_2')
@@ -38,8 +38,8 @@ seeds_kb.add(
 seeds_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='shop'))
 
 seeds_2_kb = types.InlineKeyboardMarkup()
-seeds_2_kb.add(types.InlineKeyboardButton('🌶️ Огненный перец (семена)', callback_data='buy_fire_pepper'))
-seeds_2_kb.add(types.InlineKeyboardButton('🌸 Лунный лотос (семена)', callback_data='buy_moon_lotus'))
+seeds_2_kb.add(types.InlineKeyboardButton('🌶️ Огненный перец (семена)', callback_data='buy_seeds_fire_pepper'))
+seeds_2_kb.add(types.InlineKeyboardButton('🌸 Лунный лотос (семена)', callback_data='buy_seeds_moon_lotus'))
 seeds_2_kb.add(
     types.InlineKeyboardButton('⬅️', callback_data='seeds'),
     types.InlineKeyboardButton('2/2', callback_data='q')
@@ -55,9 +55,9 @@ card_seeds_kb.add(
 )
 
 rakes_kb = types.InlineKeyboardMarkup()
-rakes_kb.add(types.InlineKeyboardButton('🪵 Деревянные грабли', callback_data='buy_wood_rake'))
-rakes_kb.add(types.InlineKeyboardButton('🛠️ Железные грабли', callback_data='buy_iron_rake'))
-rakes_kb.add(types.InlineKeyboardButton('⚙️ Стальные грабли', callback_data='buy_steel_rake'))
+rakes_kb.add(types.InlineKeyboardButton('🪵 Деревянные грабли', callback_data='buy_rake_wood'))
+rakes_kb.add(types.InlineKeyboardButton('🛠️ Железные грабли', callback_data='buy_rake_iron'))
+rakes_kb.add(types.InlineKeyboardButton('⚙️ Стальные грабли', callback_data='buy_rake_steel'))
 rakes_kb.add(
     types.InlineKeyboardButton('1/2', callback_data='q'),
     types.InlineKeyboardButton('➡️', callback_data='rakes_2')
@@ -65,9 +65,9 @@ rakes_kb.add(
 rakes_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='shop'))
 
 rakes_2_kb = types.InlineKeyboardMarkup()
-rakes_2_kb.add(types.InlineKeyboardButton('🌧️ Грабли дождя', callback_data='buy_rain_rake'))
-rakes_2_kb.add(types.InlineKeyboardButton('💤 Грабли Сновидений', callback_data='buy_dreams_rake'))
-rakes_2_kb.add(types.InlineKeyboardButton('⚛️ Квантовые грабли', callback_data='buy_quantum_rake'))
+rakes_2_kb.add(types.InlineKeyboardButton('🌧️ Грабли дождя', callback_data='buy_rake_rain'))
+rakes_2_kb.add(types.InlineKeyboardButton('💤 Грабли Сновидений', callback_data='buy_rake_dreams'))
+rakes_2_kb.add(types.InlineKeyboardButton('⚛️ Квантовые грабли', callback_data='buy_rake_quantum'))
 rakes_2_kb.add(
     types.InlineKeyboardButton('⬅️', callback_data='rakes'),
     types.InlineKeyboardButton('2/2', callback_data='q')
