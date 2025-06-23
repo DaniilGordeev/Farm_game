@@ -10,7 +10,7 @@ from database import Database
 import keyboard as kb
 import game_logic as gl
 import create_table
-
+TOKEN = "8055869737:AAEsL52Eh_jEsOSHbzQ3RjWNAJByfgY_Gd0"
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
@@ -1723,7 +1723,7 @@ def set_seeds_1(call):
             db.set_state_bed(id, user_locate, 3)
 
         db.remove_item_id(id, 1, user_inventory['quantity'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
+        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     else:
         text = f"❌ Тебе не хватает семян!\n" \
@@ -1765,7 +1765,7 @@ def set_seeds_2(call):
             db.set_state_bed(id, user_locate, 3)
 
         db.remove_item_id(id, 2, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
+        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     elif 0 < user_inventory['quantity'] < user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1823,7 +1823,7 @@ def set_seeds_3(call):
             db.set_state_bed(id, user_locate, 3)
 
         db.remove_item_id(id, 3, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
+        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     elif 0 < user_inventory['quantity'] < user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1881,7 +1881,7 @@ def set_seeds_4(call):
             db.set_state_bed(id, user_locate, 3)
 
         db.remove_item_id(id, 4, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
+        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     elif 0 < user_inventory['quantity'] < user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1939,7 +1939,7 @@ def set_seeds_5(call):
             db.set_state_bed(id, user_locate, 3)
 
         db.remove_item_id(id, 5, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
+        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     elif 0 < user_inventory['quantity'] < user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1997,7 +1997,7 @@ def set_seeds_6(call):
             db.set_state_bed(id, user_locate, 3)
 
         db.remove_item_id(id, 6, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
+        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     elif 0 < user_inventory['quantity'] < user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -2035,6 +2035,11 @@ def get_harvest(call):
         return
     
     user_bed = db.get_bed(id, int(user_locate[4:]))
+    
+    if user_bed['id_planted'] == 0:
+        bot.send_message(id, '❌ Ты уже собрал урожай!')
+        return
+    
     item_harvest = db.get_items_id(HARVEST[user_bed['id_planted']])
     resource = gl.random_resource()
     tasks = db.get_tasks(id)
@@ -2061,41 +2066,41 @@ def get_harvest(call):
                 buster = 1
             quantity = 0
             if user_tool == 7:
-                quantity = int(user_bed['quantity'])
+                quantity = user_bed['quantity']
                 text = f"✨ Урожай! ✨\nСобрано {quantity*buster} {item_harvest['name']}"
                 db.set_inventory(id, item_harvest['item_id'], quantity*buster)
                 bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
             if user_tool == 8:
-                quantity = int(user_bed['quantity']) + 3
+                quantity = user_bed['quantity'] + 3
                 text = f"✨ Урожай! ✨\nСобрано {quantity*buster} {item_harvest['name']}"
                 db.set_inventory(id, item_harvest['item_id'], quantity*buster)
                 bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
             if user_tool == 9:
-                quantity = int(user_bed['quantity']) + 2
+                quantity = user_bed['quantity'] + 2
                 text = f"✨ Урожай! ✨\nСобрано {quantity*buster} {item_harvest['name']}"
                 db.set_inventory(id, item_harvest['item_id'], quantity*buster)
                 bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
             if user_tool == 10:
-                quantity = int(user_bed['quantity'])
+                quantity = user_bed['quantity']
                 text = f"✨ Урожай! ✨\nСобрано {quantity*buster} {item_harvest['name']}"
                 db.set_inventory(id, item_harvest['item_id'], quantity*buster)
                 bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
             if user_tool == 11:
                 if gl.is_night_time():
-                    quantity = int(user_bed['quantity'])*2
+                    quantity = user_bed['quantity']*2
                 else:
-                    quantity = int(user_bed['quantity'])
+                    quantity = user_bed['quantity']
                 text = f"✨ Урожай! ✨\nСобрано {quantity*buster} {item_harvest['name']}"
                 db.set_inventory(id, item_harvest['item_id'], quantity*buster)
                 bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
             if user_tool == 12:
                 if gl.random_chance():
-                    quantity = int(user_bed['quantity'])*2
+                    quantity = user_bed['quantity']*2
                     text = f"✨ Урожай! ✨\nСобрано {quantity*buster} {item_harvest['name']}"
                     db.set_inventory(id, item_harvest['item_id'], quantity*buster)
                     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
                 else:
-                    quantity = int(user_bed['quantity'])
+                    quantity = user_bed['quantity']
                     text = f"✨ Урожай! ✨\nСобрано {quantity*buster} {item_harvest['name']}"
                     db.set_inventory(id, item_harvest['item_id'], quantity*buster)
                     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
