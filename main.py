@@ -10,7 +10,7 @@ from database import Database
 import keyboard as kb
 import game_logic as gl
 import create_table
-
+TOKEN = "8055869737:AAEsL52Eh_jEsOSHbzQ3RjWNAJByfgY_Gd0"
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
@@ -348,6 +348,7 @@ def get_reward(call):
     db.add_money(id, reward[1])
     db.edit_get_reward(id)
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_tasks_kb)
+    print(f"{gl.get_now_time()} - {id} выполнил задание и забрал награду")
 
 @bot.message_handler(commands=['inventory'])
 def inventory(message):
@@ -413,14 +414,17 @@ def buyer(call):
     id = call.from_user.id 
     db = Database()
     inventory_user = db.get_item_inventory_type(id, 'урожай')
+    price_harvest = db.get_items_type('урожай')
     text = f"🌱 *Фермерский рынок* 🏪\n\n"\
-            f"📃 Прайс-лист Скупщика:\n"\
-            f"<i>🔹 Пшеница — 15 монет</i>\n"\
-            f"<i>🔹 Морковь — 30 монет</i>\n"\
-            f"<i>🔹 Кукуруза — 40 монет</i>\n"\
-            f"<i>🔹 Картофель — 80 монет</i>\n"\
-            f"<i>🔹 Лунный лотос — 800 монет</i>\n"\
-            f"<i>🔹 Огненный перец — 450 монет</i>"
+            f"📃 Прайс-лист Скупщика:\n"
+    for item in price_harvest:
+        text += f"<i>🔹 {item['name']} - {item['sell_price']} монет</i>\n"         
+            # f"<i>🔹 Пшеница — 15 монет</i>\n"\
+            # f"<i>🔹 Морковь — 30 монет</i>\n"\
+            # f"<i>🔹 Кукуруза — 40 монет</i>\n"\
+            # f"<i>🔹 Картофель — 80 монет</i>\n"\
+            # f"<i>🔹 Лунный лотос — 800 монет</i>\n"\
+            # f"<i>🔹 Огненный перец — 450 монет</i>"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.buyer(inventory_user), parse_mode='html')
     db.edit_locate(id, 'buyer')
     
@@ -442,6 +446,7 @@ def sell_item_16(call):
         db.update_completed_task(id, 2, summa)
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
+    print(f"{gl.get_now_time()} - {id} продал Пшеницы {item['quantity']} шт")
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_17')
 def sell_item_17(call):
@@ -461,6 +466,7 @@ def sell_item_17(call):
         db.update_completed_task(id, 2, summa)
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
+    print(f"{gl.get_now_time()} - {id} продал Морковь {item['quantity']} шт")
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_18')
 def sell_item_18(call):
@@ -480,6 +486,7 @@ def sell_item_18(call):
         db.update_completed_task(id, 2, summa)
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
+    print(f"{gl.get_now_time()} - {id} продал Кукуруза {item['quantity']} шт")
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_19')
 def sell_item_19(call):
@@ -499,6 +506,7 @@ def sell_item_19(call):
         db.update_completed_task(id, 2, summa)
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
+    print(f"{gl.get_now_time()} - {id} продал Картофель {item['quantity']} шт")
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_20')
 def sell_item_20(call):
@@ -518,6 +526,7 @@ def sell_item_20(call):
         db.update_completed_task(id, 2, summa)
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
+    print(f"{gl.get_now_time()} - {id} продал Лунный лотос {item['quantity']} шт")
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_21')
 def sell_item_21(call):
@@ -537,6 +546,7 @@ def sell_item_21(call):
         db.update_completed_task(id, 2, summa)
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
+    print(f"{gl.get_now_time()} - {id} продал Огненный перец {item['quantity']} шт")
 
 @bot.callback_query_handler(lambda call: call.data == 'shop')
 def shop(call):
@@ -712,6 +722,7 @@ def quantity_buy_1(call):
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
         bot.edit_message_text(text_for_message, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
+        print(f"{gl.get_now_time()} - {id} Купил {item['name']} 1 шт")
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
@@ -761,6 +772,7 @@ def quantity_buy_5(call):
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
         bot.edit_message_text(text_for_message, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
+        print(f"{gl.get_now_time()} - {id} Купил {item['name']} 5 шт")
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
@@ -810,6 +822,7 @@ def quantity_buy_10(call):
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
         bot.edit_message_text(text_for_message, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
+        print(f"{gl.get_now_time()} - {id} Купил {item['name']} 10 шт")
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
@@ -979,6 +992,7 @@ def buy_rakes(call):
             text = f"🚜 *Добро пожаловать в Фермерский магазин!* 🌾\n"\
                     f"Выбери интересующую категорию товаров:"
             bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.shop_kb)
+            print(f"{gl.get_now_time()} - {id} Купил {item['name']}")
         else:
             text = f'У тебя уже есть грабли\n'\
                     f'{user_tool["name"]} \n'\
@@ -1052,6 +1066,7 @@ def replace_rake(call):
         text = f"🚜 *Добро пожаловать в Фермерский магазин!* 🌾\n"\
                 f"Выбери интересующую категорию товаров:"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.shop_kb)
+        print(f"{gl.get_now_time()} - {id} Купил {item['name']}")
     else:
         text = f"😢 Упс! Не хватает монет..."
         bot.answer_callback_query(call.id, text)
@@ -1105,6 +1120,7 @@ def buy_new_bed(call):
         db.set_bed(id, user_farm['amount_beds']+1)
         db.edit_money(id, price)
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
+        print(f"{gl.get_now_time()} - {id} Купил {user_farm['amount_beds']+1}-ую грядку")
     else:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
@@ -1707,7 +1723,7 @@ def set_seeds_1(call):
             db.set_state_bed(id, user_locate, 3)
 
         db.remove_item_id(id, 1, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
+        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     elif 0 < user_inventory['quantity'] < user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
@@ -1723,7 +1739,7 @@ def set_seeds_1(call):
             db.set_state_bed(id, user_locate, 3)
 
         db.remove_item_id(id, 1, user_inventory['quantity'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
+        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     else:
         text = f"❌ Тебе не хватает семян!\n" \
@@ -2035,7 +2051,7 @@ def get_harvest(call):
         return
     
     user_bed = db.get_bed(id, int(user_locate[4:]))
-
+    
     if user_bed['id_planted'] == 0:
         bot.send_message(id, '❌ Ты уже собрал урожай!')
         return
@@ -2146,6 +2162,7 @@ def watering(call):
     if user_tool != None:
         if user_tool['tool_id'] == 10:
             db.watering_bed(id, user_locate[4:], gl.end_time(int(user_bed['watering_hours'])*2))
+            db.edit_tool(id, user_tool['tool_id'])
             return
     
     db.watering_bed(id, user_locate[4:], gl.end_time(user_bed['watering_hours']))
@@ -3008,6 +3025,7 @@ def handle_sell(message):
                 post_listing(message.from_user.id, item_id, price, quantity)
                 db.remove_item_id(id, item_id, quantity)
                 bot.send_message(id, f"✅ Товар {item_id} выставлен на продажу!", reply_markup=kb.back_main_menu_kb)
+                print(f"{gl.get_now_time()} - {id} Выставил {item_id} на рынок")
             else:
                 bot.send_message(id, f"У тебя нет такого количества", reply_markup=kb.back_main_menu_kb)
         else:
@@ -3053,6 +3071,7 @@ def handle_buy(call):
                      f"У тебя купили {info_item['name']} в количестве {post['quantity']}", reply_markup=kb.back_main_menu_kb)
     
     bot.answer_callback_query(call.id,f"Вы купили {info_item['name']}!")
+    print(f"{gl.get_now_time()} - {id} купил у игрока {post['id_owner']} {info_item['name']} в количестве {post['quantity']}")
 
 @bot.callback_query_handler(lambda call: call.data == 'market')
 def market(call):
@@ -3105,6 +3124,7 @@ def slot_cancel(call):
     db.delete_product(slot_id)
     bot.delete_message(ID_CHANNEL_MARKET, post['message_id'])
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_market_kb)
+    print(f"{gl.get_now_time()} - {id} убрал товар с продажи")
 
 
 

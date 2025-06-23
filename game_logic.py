@@ -127,7 +127,7 @@ def generate_tasks(user_data, user_money = 499):
 
 def random_reward_tasks():
     number = random.randint(0, 100)
-    money = random.randrange(100, 5100, 100)
+    money = random.randrange(500, 2600, 100)
 
     if number >= 0 and number <= 5:
         return [26, money]
@@ -228,3 +228,6 @@ def generate_random_daily_bonus():
             return [2, quantity]
         else:
             return [1, quantity]
+
+def get_now_time():
+    return datetime.now()

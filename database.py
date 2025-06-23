@@ -344,7 +344,7 @@ class Database:
             time_end, holes, chance_resistance, resistance, watering_hours,
             up_speed_rate, last_price_added_holes, quantity)
             VALUES
-            (?, ?, 0, 100, 0, ?, 0, 5, 20, 0, 8, 0, 10000, 0)
+            (?, ?, 0, 100, 0, ?, 0, 5, 10, 0, 8, 0, 10000, 0)
             ''',
             (self._id_bed, self._id, self._time_end_watering, ),
         )
@@ -491,6 +491,17 @@ class Database:
             (self._id_item, )
         )
         return self._cursor.fetchone()
+
+    def get_items_type(self, type):
+        self._type = type
+
+        self._cursor.execute(
+            '''
+            SELECT * FROM items WHERE type = ?
+            ''',
+            (self._type, )
+        )
+        return self._cursor.fetchall()
 
     def get_tool_rake(self, id):
         self._id = id
