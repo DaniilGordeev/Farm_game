@@ -10,7 +10,7 @@ from database import Database
 import keyboard as kb
 import game_logic as gl
 import create_table
-TOKEN = "8055869737:AAEsL52Eh_jEsOSHbzQ3RjWNAJByfgY_Gd0"
+
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
@@ -2035,7 +2035,7 @@ def get_harvest(call):
         return
     
     user_bed = db.get_bed(id, int(user_locate[4:]))
-    
+
     if user_bed['id_planted'] == 0:
         bot.send_message(id, '❌ Ты уже собрал урожай!')
         return
