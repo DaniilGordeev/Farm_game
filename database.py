@@ -19,6 +19,11 @@ class Database:
         self._cursor = self._db.cursor()
 
 
+    def close(self):
+        self._cursor.close()
+        self._db.close()
+
+
     def get_all_id_users(self):
         self._cursor.execute("SELECT id FROM user")
         return self._cursor.fetchall()

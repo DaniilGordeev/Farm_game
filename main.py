@@ -66,6 +66,7 @@ def start(message):
                     f'══════════════'
         bot.send_message(id, text, reply_markup=kb.profile_kb)
     db.edit_locate(id, 'start')
+    db.close()
 
 # Обучение
 
@@ -77,6 +78,7 @@ def pass_training(call):
     text = "🌾 *Добро пожаловать на ферму!* 🌾\n\n"\
            "Давай начнём с осмотра твоих владений."
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.farm_kb, parse_mode='Markdown')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_training')
 def bed_training(call):
@@ -247,6 +249,7 @@ def profile(message):
                 f'══════════════'
     bot.send_message(id, text, reply_markup=kb.profile_kb)
     db.edit_locate(id, 'profile')
+    db.close()
     
 @bot.callback_query_handler(lambda call: call.data == 'profile')
 def profile(call):
@@ -271,6 +274,7 @@ def profile(call):
                 f'══════════════'
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.profile_kb)
     db.edit_locate(id, 'profile')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'clans')
 def clans(call):
@@ -333,6 +337,7 @@ def tasks(call):
                 f'➖ {tasks["text_task2"]}\n'\
                 f'✔ Выполнено: Готово'
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_profile_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'get_reward')
 def get_reward(call):
@@ -349,6 +354,7 @@ def get_reward(call):
     db.edit_get_reward(id)
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_tasks_kb)
     print(f"{gl.get_now_time()} - {id} выполнил задание и забрал награду")
+    db.close()
 
 @bot.message_handler(commands=['inventory'])
 def inventory(message):
@@ -370,6 +376,7 @@ def inventory(message):
     for item in items:
         text += f"🆔 {item['item_id']} │ {item['name']} │ x{item['quantity']} │\n"
     bot.send_message(id, text, reply_markup=kb.box_kb)
+    db.close()
     
 
 @bot.callback_query_handler(lambda call: call.data == 'inventory')
@@ -384,6 +391,7 @@ def inventory(call):
     for item in items:
         text += f"│ {item['name']} │ x{item['quantity']} │\n"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.box_kb)
+    db.close()
 
 @bot.message_handler(commands=['city'])
 def city(message):
@@ -400,6 +408,7 @@ def city(message):
     text = f"➡️ Выбери направление:"
     bot.send_message(id, text, reply_markup=kb.city_kb)
     db.edit_locate(id, 'city')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'city')
 def city_call(call):
@@ -408,6 +417,7 @@ def city_call(call):
     text = f"➡️ Выбери направление:"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.city_kb)
     db.edit_locate(id, 'city')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buyer')
 def buyer(call):
@@ -427,6 +437,7 @@ def buyer(call):
             # f"<i>🔹 Огненный перец — 450 монет</i>"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.buyer(inventory_user), parse_mode='html')
     db.edit_locate(id, 'buyer')
+    db.close()
     
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_16')
 def sell_item_16(call):
@@ -447,6 +458,7 @@ def sell_item_16(call):
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
     print(f"{gl.get_now_time()} - {id} продал Пшеницы {item['quantity']} шт")
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_17')
 def sell_item_17(call):
@@ -467,6 +479,7 @@ def sell_item_17(call):
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
     print(f"{gl.get_now_time()} - {id} продал Морковь {item['quantity']} шт")
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_18')
 def sell_item_18(call):
@@ -487,6 +500,7 @@ def sell_item_18(call):
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
     print(f"{gl.get_now_time()} - {id} продал Кукуруза {item['quantity']} шт")
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_19')
 def sell_item_19(call):
@@ -507,6 +521,7 @@ def sell_item_19(call):
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
     print(f"{gl.get_now_time()} - {id} продал Картофель {item['quantity']} шт")
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_20')
 def sell_item_20(call):
@@ -527,6 +542,7 @@ def sell_item_20(call):
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
     print(f"{gl.get_now_time()} - {id} продал Лунный лотос {item['quantity']} шт")
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'sell_item_21')
 def sell_item_21(call):
@@ -547,6 +563,7 @@ def sell_item_21(call):
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_buyer_kb)
     print(f"{gl.get_now_time()} - {id} продал Огненный перец {item['quantity']} шт")
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'shop')
 def shop(call):
@@ -556,6 +573,7 @@ def shop(call):
             f"Выбери интересующую категорию товаров:"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.shop_kb)
     db.edit_locate(id, 'shop')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'seeds')
 def seeds(call):
@@ -585,6 +603,7 @@ def buy_seeds_wheat(call):
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
+    db.close()
 
 # Морковь
 @bot.callback_query_handler(lambda call: call.data == 'buy_seeds_carrot') 
@@ -603,6 +622,7 @@ def buy_seeds_carrot(call):
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
+    db.close()
 
 # Кукуруза
 @bot.callback_query_handler(lambda call: call.data == 'buy_seeds_corn')
@@ -621,6 +641,7 @@ def buy_seeds_corn(call):
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
+    db.close()
 
 # Картофель
 @bot.callback_query_handler(lambda call: call.data == 'buy_seeds_potato')
@@ -639,6 +660,7 @@ def buy_seeds_potato(call):
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
+    db.close()
 
 # Лунный лотос
 @bot.callback_query_handler(lambda call: call.data == 'buy_seeds_moon_lotus')
@@ -657,6 +679,7 @@ def buy_seeds_moon_lotus(call):
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
+    db.close()
 
 # Огненный перец
 @bot.callback_query_handler(lambda call: call.data == 'buy_seeds_fire_pepper')
@@ -675,6 +698,7 @@ def buy_seeds_fire_pepper(call):
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'quantity_buy_1')
@@ -726,6 +750,7 @@ def quantity_buy_1(call):
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'quantity_buy_5')
 def quantity_buy_5(call):
@@ -776,6 +801,7 @@ def quantity_buy_5(call):
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'quantity_buy_10')
 def quantity_buy_10(call):
@@ -826,6 +852,7 @@ def quantity_buy_10(call):
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'rakes')
 def rakes(call):
@@ -850,6 +877,7 @@ def buy_wood_rake(call):
             f"└ 💰 Цена: {item['price']} монет\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_rake_iron')
 def buy_iron_rake(call):
@@ -864,6 +892,7 @@ def buy_iron_rake(call):
             f"└ 💰 Цена: {item['price']} монет\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_rake_steel')
 def buy_steel_rake(call):
@@ -878,6 +907,7 @@ def buy_steel_rake(call):
             f"└ 💰 Цена: {item['price']} монет\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_rake_rain')
 def buy_rain_rake(call):
@@ -895,6 +925,7 @@ def buy_rain_rake(call):
             f"└ 💧 5 молекул дождя\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_rake_dreams')
 def buy_dreams_rake(call):
@@ -911,6 +942,7 @@ def buy_dreams_rake(call):
             f"└ 🌿 5 сновиденческие травы\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_rake_quantum')
 def buy_quantum_rake(call):
@@ -927,6 +959,7 @@ def buy_quantum_rake(call):
             f"└ ⚛️ 5 квантовых обломоков\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_rakes_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_rakes')
 def buy_rakes(call):
@@ -1002,6 +1035,7 @@ def buy_rakes(call):
     else:
         text = f"😢 Упс! Не хватает монет..."
         bot.answer_callback_query(call.id, text)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'replace_rake')
 def replace_rake(call):
@@ -1070,6 +1104,7 @@ def replace_rake(call):
     else:
         text = f"😢 Упс! Не хватает монет..."
         bot.answer_callback_query(call.id, text)
+    db.close()
 
 
 @bot.message_handler(commands=['farm'])
@@ -1088,6 +1123,7 @@ def farm(message):
     text = f"🌻 Твоя ферма:\n"\
             f'Выбери грядку, которую ты хочешь обработать'
     bot.send_message(id, text, reply_markup=kb.make_beds(user_farm['amount_beds'])[0])
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'farm')
 def farm(call):
@@ -1097,6 +1133,7 @@ def farm(call):
     text = f"🌻 Твоя ферма:\n"\
             f'Выбери грядку, которую ты хочешь обработать'
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.make_beds(user_farm['amount_beds'])[0])
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_bed')
 def buy_bed(call):
@@ -1105,6 +1142,7 @@ def buy_bed(call):
     user_farm = db.get_farm(id)
     text = f"🌱 Цена новой грядки: {PRICE_BUY_BEDS[user_farm['amount_beds']]} монет"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.buy_beds_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buy_new_bed')
 def buy_new_bed(call):
@@ -1124,6 +1162,7 @@ def buy_new_bed(call):
     else:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'beds')
 def beds(call):
@@ -1133,6 +1172,7 @@ def beds(call):
     text = f"🌻 Твоя ферма:\n"\
             f'Выбери грядку, которую ты хочешь обработать'
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.make_beds(user_farm['amount_beds'])[0])
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'beds_2')
 def beds_2(call):
@@ -1140,6 +1180,7 @@ def beds_2(call):
     db = Database()
     user_farm = db.get_farm(id)
     bot.edit_message_reply_markup(id, call.message.message_id, reply_markup=kb.make_beds(user_farm['amount_beds'])[1])
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_1')
 def bed_1(call):
@@ -1193,6 +1234,7 @@ def bed_1(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_2')
 def bed_2(call):
@@ -1246,6 +1288,7 @@ def bed_2(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_3')
 def bed_3(call):
@@ -1299,6 +1342,7 @@ def bed_3(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_4')
 def bed_4(call):
@@ -1352,6 +1396,7 @@ def bed_4(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_5')
 def bed_5(call):
@@ -1405,6 +1450,7 @@ def bed_5(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_6')
 def bed_6(call):
@@ -1458,6 +1504,7 @@ def bed_6(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_7')
 def bed_7(call):
@@ -1510,6 +1557,7 @@ def bed_7(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_8')
 def bed_8(call):
@@ -1562,6 +1610,7 @@ def bed_8(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_9')
 def bed_9(call):
@@ -1615,6 +1664,7 @@ def bed_9(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bed_10')
 def bed_10(call):
@@ -1668,6 +1718,7 @@ def bed_10(call):
         text += f"💀 Состояние: Засохло!\n" \
                 f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'set_seeds')
@@ -1687,6 +1738,7 @@ def set_seeds(call):
     text = f"🌱 Выбери, что хочешь посадить:\n" \
             f"🔢 Максимум семян можно посадить: {user_bed['holes']} шт."
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.select_set_seeds(user_inventory, user_locate))
+    db.close()
     
 @bot.callback_query_handler(lambda call: call.data == 'set_seeds_1')
 def set_seeds_1(call):
@@ -1745,6 +1797,7 @@ def set_seeds_1(call):
         text = f"❌ Тебе не хватает семян!\n" \
                 f"Нужно докупить или выбрать другую культуру"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'set_seeds_2')
 def set_seeds_2(call):
@@ -1803,6 +1856,7 @@ def set_seeds_2(call):
         text = f"❌ Тебе не хватает семян!\n" \
                 f"Нужно докупить или выбрать другую культуру"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'set_seeds_3')
 def set_seeds_3(call):
@@ -1861,6 +1915,7 @@ def set_seeds_3(call):
         text = f"❌ Тебе не хватает семян!\n" \
                 f"Нужно докупить или выбрать другую культуру"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'set_seeds_4')
 def set_seeds_4(call):
@@ -1919,6 +1974,7 @@ def set_seeds_4(call):
         text = f"❌ Тебе не хватает семян!\n" \
                 f"Нужно докупить или выбрать другую культуру"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'set_seeds_5')
 def set_seeds_5(call):
@@ -1977,6 +2033,7 @@ def set_seeds_5(call):
         text = f"❌ Тебе не хватает семян!\n" \
                 f"Нужно докупить или выбрать другую культуру"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'set_seeds_6')
 def set_seeds_6(call):
@@ -2035,6 +2092,7 @@ def set_seeds_6(call):
         text = f"❌ Тебе не хватает семян!\n" \
                 f"Нужно докупить или выбрать другую культуру"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'get_harvest')
 def get_harvest(call):
@@ -2133,6 +2191,7 @@ def get_harvest(call):
                 db.update_completed_task(id, 1, quantity*buster)
             if tasks['plant2'] == item_harvest['item_id'] and tasks['task2_completed'] != -1:
                 db.update_completed_task(id, 2, quantity*buster)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'watering')
 def watering(call):
@@ -2158,14 +2217,17 @@ def watering(call):
     if user_farm['buster'] == 27:
         db.watering_bed(id, user_locate[4:], gl.end_time(24))
         db.used_buster(id, 0)
+        db.close()
         return
     if user_tool != None:
         if user_tool['tool_id'] == 10:
             db.watering_bed(id, user_locate[4:], gl.end_time(int(user_bed['watering_hours'])*2))
             db.edit_tool(id, user_tool['tool_id'])
+            db.close()
             return
     
     db.watering_bed(id, user_locate[4:], gl.end_time(user_bed['watering_hours']))
+    db.close()
         
 
 
@@ -2175,6 +2237,7 @@ def upgrade_bed(call):
     id = call.from_user.id 
     db = Database()
     user_locate = db.get_me(id)['locate']
+    db.close()
 
     if not user_locate.startswith('bed_'):
         text = f"❌ Ты не находишься на грядке\n"\
@@ -2195,6 +2258,7 @@ def disease_resistance(call):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
+        db.close()
         return
     
     user_bed = db.get_bed(id, user_locate[4:])
@@ -2207,6 +2271,7 @@ def disease_resistance(call):
             f"💰 {items_for_upgrade[0]} монет\n"\
             f"🌿 {items_for_upgrade[1]} лечебной травы\n\n"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.disease_resistance_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'upgrade_disease_resistance')
 def upgrade_disease_resistance(call):
@@ -2220,6 +2285,7 @@ def upgrade_disease_resistance(call):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
+        db.close()
         return
     
     items_for_upgrade = PRICE_UPGRADE_DISEASE_RESISTANCE[user_bed['chance_resistance']]
@@ -2236,6 +2302,7 @@ def upgrade_disease_resistance(call):
     else:
         text = f"😢 Упс! Не хватает монет или ресурсов..."
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_to_upgrade_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'reducing_soil')
 def reducing_soil(call):
@@ -2247,6 +2314,7 @@ def reducing_soil(call):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
+        db.close()
         return
     
     user_bed = db.get_bed(id, user_locate[4:])
@@ -2261,6 +2329,7 @@ def reducing_soil(call):
             f"▸ {items_for_upgrade[0]} монет\n"\
             f"▸ {items_for_upgrade[1]} молекул воды"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.reducing_soil_kb)
+    db.close()
     
 @bot.callback_query_handler(lambda call: call.data == 'upgrade_reducing_soil')
 def upgrade_reducing_soil(call):
@@ -2272,6 +2341,7 @@ def upgrade_reducing_soil(call):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
+        db.close()
         return
     
     user_inventory = db.get_item_invetory(id, 13)
@@ -2290,6 +2360,7 @@ def upgrade_reducing_soil(call):
     else:
         text = f"😢 Упс! Не хватает монет или ресурсов..."
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_to_upgrade_kb)
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'up_number_holes')
@@ -2303,6 +2374,7 @@ def up_number_holes(call):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
+        db.close()
         return
     
     user_bed = db.get_bed(id, user_locate[4:])
@@ -2310,6 +2382,7 @@ def up_number_holes(call):
             f"💵 Цена: {round(user_bed['last_price_added_holes']*1.1)}\n"\
             f"👛 Ваш баланс: {user_money}\n"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.added_holes_kb)
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'added_holes')
@@ -2322,6 +2395,7 @@ def added_holes(call):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
+        db.close()
         return
     
     user_bed = db.get_bed(id, user['locate'][4:])
@@ -2335,6 +2409,7 @@ def added_holes(call):
     else:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_to_upgrade_kb)
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'box')
@@ -2344,6 +2419,7 @@ def box(call):
     user_inventory = db.get_item_inventory_type(id, 'бокс')
     text = f'🎁Выбери какой бокс хочешь открыть:'
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.open_box(user_inventory))
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'box_23')
 def box_23(call):
@@ -2357,6 +2433,7 @@ def box_23(call):
             f"▫️ Картофель: 2-5\n"
     db.edit_locate(id, 'box_23')
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.open_box_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'box_24')
 def box_24(call):
@@ -2370,6 +2447,7 @@ def box_24(call):
             f"▫️ Огненный перец: 1-2"
     db.edit_locate(id, 'box_24')
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.open_box_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'box_25')
 def box_25(call):
@@ -2383,6 +2461,7 @@ def box_25(call):
             f"▫️ Квантовый обломок: 1-2"
     db.edit_locate(id, 'box_25')
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.open_box_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'box_26')
 def box_26(call):
@@ -2396,6 +2475,7 @@ def box_26(call):
             f"▫️ Золотая монета: 1-10"
     db.edit_locate(id, 'box_26')
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.open_box_kb)
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'open_box')
@@ -2420,6 +2500,7 @@ def open_box(call):
             f"🎁 {box['item']} ×{box['quantity']}\n"\
             f"✨━━━━━━━━━━━━━━━━━━━✨"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_box_kb)
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'busters')
@@ -2435,6 +2516,7 @@ def busters(call):
     else:
         text += f'❌ Нет активных бустеров  '
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.busters(buster))
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'buster_27')
@@ -2446,6 +2528,7 @@ def buster_27(call):
             f'⏳ Целые сутки без забот!'
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.used_buster_kb)
     db.edit_locate(id, 'buster_27')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buster_28')
 def buster_28(call):
@@ -2455,6 +2538,7 @@ def buster_28(call):
             f'✧ Следующий сбор принесёт 2x урожая!'
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.used_buster_kb)
     db.edit_locate(id, 'buster_28')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'buster_29')
 def buster_29(call):
@@ -2464,6 +2548,7 @@ def buster_29(call):
             f'✧ Следующая посадка защищена от болезней!'
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.used_buster_kb)
     db.edit_locate(id, 'buster_29')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'used_buster')
 def used_buster(call):
@@ -2480,6 +2565,7 @@ def used_buster(call):
     else:
         text = f'❌Ты уже используешь бустер'
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_busters_kb)
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'casino')
@@ -2515,6 +2601,7 @@ def roulette(call):
         photo = open('image/roulette.png', 'rb')
         bot.delete_message(id, call.message.message_id)
         bot.send_photo(id, photo, text, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_user_d2')
 def bid_user_d2(call):
@@ -2534,6 +2621,7 @@ def bid_user_d2(call):
                 f"💳 Доступно: {user['money']}\n"\
                 f"══════════════════\n"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_user_d10')
 def bid_user_d10(call):
@@ -2553,6 +2641,7 @@ def bid_user_d10(call):
                 f"💳 Доступно: {user['money']}\n"\
                 f"══════════════════\n"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_user_x2')
 def bid_user_x2(call):
@@ -2572,6 +2661,7 @@ def bid_user_x2(call):
                 f"💳 Доступно: {user['money']}\n"\
                 f"══════════════════\n"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_user_x10')
 def bid_user_x10(call):
@@ -2591,6 +2681,7 @@ def bid_user_x10(call):
                 f"💳 Доступно: {user['money']}\n"\
                 f"══════════════════\n"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_1_12')
@@ -2604,6 +2695,7 @@ def bid_1_12(call):
     if user['money'] < user_casino['bid'] or user['money'] < 10:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        db.close()
         return
 
     text = f'Выпало число {number}\n\n'
@@ -2621,6 +2713,7 @@ def bid_1_12(call):
                 f"Твоя ставка {user_casino['bid']} монет\n"\
                 f"💰 {user['money']}"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_13_24')
 def bid_13_24(call):
@@ -2633,6 +2726,7 @@ def bid_13_24(call):
     if user['money'] < user_casino['bid'] or user['money'] < 10:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        db.close()
         return
 
     text = f'Выпало число {number}\n\n'
@@ -2650,6 +2744,7 @@ def bid_13_24(call):
                 f"Твоя ставка {user_casino['bid']} монет\n"\
                 f"💰 {user['money']}"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_25_36')
 def bid_25_36(call):
@@ -2662,6 +2757,7 @@ def bid_25_36(call):
     if user['money'] < user_casino['bid'] or user['money'] < 10:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        db.close()
         return
 
     text = f'Выпало число {number}\n\n'
@@ -2679,6 +2775,7 @@ def bid_25_36(call):
                 f"Твоя ставка {user_casino['bid']} монет\n"\
                 f"💰 {user['money']}"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_black')
 def bid_black(call):
@@ -2691,6 +2788,7 @@ def bid_black(call):
     if user['money'] < user_casino['bid'] or user['money'] < 10:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        db.close()
         return
 
     text = f'Выпало число {number}\n\n'
@@ -2708,6 +2806,7 @@ def bid_black(call):
                 f"Твоя ставка {user_casino['bid']} монет\n"\
                 f"💰 {user['money']}"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_red')
 def bid_red(call):
@@ -2720,6 +2819,7 @@ def bid_red(call):
     if user['money'] < user_casino['bid'] or user['money'] < 10:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        db.close()
         return
 
     text = f'Выпало число {number}\n\n'
@@ -2737,6 +2837,7 @@ def bid_red(call):
                 f"Твоя ставка {user_casino['bid']} монет\n"\
                 f"💰 {user['money']}"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_even')
 def bid_even(call):
@@ -2749,6 +2850,7 @@ def bid_even(call):
     if user['money'] < user_casino['bid'] or user['money'] < 10:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        db.close()
         return
 
     text = f'Выпало число {number}\n\n'
@@ -2766,6 +2868,7 @@ def bid_even(call):
                 f"Твоя ставка {user_casino['bid']} монет\n"\
                 f"💰 {user['money']}"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_odd')
 def bid_odd(call):
@@ -2778,6 +2881,7 @@ def bid_odd(call):
     if user['money'] < user_casino['bid'] or user['money'] < 10:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        db.close()
         return
 
     text = f'Выпало число {number}\n\n'
@@ -2795,6 +2899,7 @@ def bid_odd(call):
                 f"Твоя ставка {user_casino['bid']} монет\n"\
                 f"💰 {user['money']}"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_zero')
 def bid_zero(call):
@@ -2807,6 +2912,7 @@ def bid_zero(call):
     if user['money'] < user_casino['bid'] or user['money'] < 10:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        db.close()
         return
 
     text = f'Выпало число {number}\n\n'
@@ -2824,6 +2930,7 @@ def bid_zero(call):
                 f"Твоя ставка {user_casino['bid']} монет\n"\
                 f"💰 {user['money']}"
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.roulette_kb)
+    db.close()
 
 
 
@@ -2846,6 +2953,7 @@ def dice(call):
                 f"══════════════════\n"
         bot.delete_message(id, call.message.message_id)
         bot.send_message(id, text, reply_markup=kb.dice_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'dice_back')
 def dice(call):
@@ -2865,6 +2973,7 @@ def dice(call):
                 f"══════════════════\n"
         bot.delete_message(id, call.message.message_id)
         bot.send_message(id, text, reply_markup=kb.dice_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_user_dice_d2')
 def bid_user_dice_d2(call):
@@ -2884,6 +2993,7 @@ def bid_user_dice_d2(call):
                 f"💳 Доступно: {user['money']}\n"\
                 f"══════════════════\n"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.dice_kb)
+    db.close()
     
 @bot.callback_query_handler(lambda call: call.data == 'bid_user_dice_d10')
 def bid_user_dice_d10(call):
@@ -2903,6 +3013,7 @@ def bid_user_dice_d10(call):
                 f"💳 Доступно: {user['money']}\n"\
                 f"══════════════════\n"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.dice_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_user_dice_x2')
 def bid_user_dice_x2(call):
@@ -2922,6 +3033,7 @@ def bid_user_dice_x2(call):
                 f"💳 Доступно: {user['money']}\n"\
                 f"══════════════════\n"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.dice_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'bid_user_dice_x10')
 def bid_user_dice_x10(call):
@@ -2941,6 +3053,7 @@ def bid_user_dice_x10(call):
                 f"💳 Доступно: {user['money']}\n"\
                 f"══════════════════\n"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.dice_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'roll_dice')
 def roll_dice(call):
@@ -2956,6 +3069,7 @@ def roll_dice(call):
     if user['money'] < user_casino['bid'] or user['money'] < 10:
         text = f"😢 Упс! Не хватает монет..."
         bot.edit_message_caption(text, id, call.message.message_id, reply_markup=kb.back_casino_kb)
+        db.close()
         return
 
     if numbers_diller[0] + numbers_diller[1] > numbers_user[0] + numbers_user[1]:
@@ -2976,6 +3090,7 @@ def roll_dice(call):
                 f"💰 Баланс: {user['money']}"
     bot.delete_message(id, call.message.message_id)
     bot.send_photo(id, photo, text, reply_markup=kb.back_dice_kb)
+    db.close()
     
 
 
@@ -2989,6 +3104,7 @@ def post_listing(id, item_id, price, quantity):
             f"*Цена:* {price} монет"
     mesg = bot.send_message(ID_CHANNEL_MARKET, text, reply_markup=kb.product(post_id))
     db.set_message_id_product(post_id, mesg.message_id)
+    db.close()
 
 @bot.message_handler(commands=['sell'])
 def handle_sell(message):
@@ -3000,16 +3116,19 @@ def handle_sell(message):
         bot.send_message(id, 
                          "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
                          reply_markup=kb.continue_training_kb)
+        db.close()
         return
     
     user_market = db.get_products_user(id)
     if len(user_market) == user['max_product']:
         bot.send_message(id, 'У тебя нет свободных слотов', reply_markup=kb.back_main_menu_kb)
+        db.close()
         return
     args = message.text.split()[1:]
     if len(args) < 3:
         bot.send_message(id, "Использование: /sell [id товара] [количество] [цена]\n"\
                                 "Цена ставится за общее количетсво товара", reply_markup=kb.back_main_menu_kb)
+        db.close()
         return
     item_id, quantity, price = args[0], args[1], args[2]
     try:
@@ -3018,6 +3137,7 @@ def handle_sell(message):
         price = int(price)
         if item_id not in ID_ITEM_FOR_SELL:
             bot.send_message(id, 'Товар нельзя продать', reply_markup=kb.back_main_menu_kb)
+            db.close()
             return
         user_inventory_item = db.get_item_invetory(id, item_id)
         if user_inventory_item != None:
@@ -3032,6 +3152,8 @@ def handle_sell(message):
             bot.send_message(id, f"У тебя нет данного предмета", reply_markup=kb.back_main_menu_kb)
     except ValueError:
         bot.send_message(id, "Ошибка: id товара, количество и цена должны быть числами", reply_markup=kb.back_main_menu_kb)
+    finally:
+        db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'sell')
 def sell(call):
@@ -3051,14 +3173,17 @@ def handle_buy(call):
 
     if not(post):
         bot.answer_callback_query(call.id, "Товар уже продан")
+        db.close()
         return
     
     if id == post['id_owner']:
         bot.answer_callback_query(call.id, "Ты не можешь купить свой товар!")
+        db.close()
         return
     
     if user['money'] < post['price']:
         bot.answer_callback_query(call.id, 'У тебя нехватает денег')
+        db.close()
         return
 
     db.delete_product(post_id)
@@ -3072,6 +3197,7 @@ def handle_buy(call):
     
     bot.answer_callback_query(call.id,f"Вы купили {info_item['name']}!")
     print(f"{gl.get_now_time()} - {id} купил у игрока {post['id_owner']} {info_item['name']} в количестве {post['quantity']}")
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'market')
 def market(call):
@@ -3095,6 +3221,7 @@ def market(call):
         text += f"Свободных лотов: {user['max_product'] - len(user_market)}\n\n"\
                 f'Канал с товарами: @farmhappymarket'
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.market_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'cancel_sell')
 def cancel_sell(call):
@@ -3103,10 +3230,12 @@ def cancel_sell(call):
     user_market = db.get_products_user(id)
     if user_market == None:
         bot.answer_callback_query(call.id, 'У тебя нет выставленных товаров на продажу')
+        db.close()
         return
     
     text = f'Нажми на слот, который хочешь отменить'
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.cancel_sell(user_market))
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data.startswith('slot_cancel_'))
 def slot_cancel(call):
@@ -3118,6 +3247,7 @@ def slot_cancel(call):
 
     if not(post):
         bot.answer_callback_query(call.id, "Товар уже продан")
+        db.close()
         return
     
     db.set_inventory(id, post['id_item'], post['quantity'])
@@ -3125,6 +3255,7 @@ def slot_cancel(call):
     bot.delete_message(ID_CHANNEL_MARKET, post['message_id'])
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_market_kb)
     print(f"{gl.get_now_time()} - {id} убрал товар с продажи")
+    db.close()
 
 
 
@@ -3138,10 +3269,12 @@ def support(message):
         bot.send_message(id, 
                          "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
                          reply_markup=kb.continue_training_kb)
+        db.close()
         return
 
     text = f'✉️ Чтобы написать о своей(ем) проблеме/вопросе используй команду /report [текст проблемы]'
     bot.send_message(id, text, reply_markup=kb.support_kb)
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'support')
 def support(call):
@@ -3164,10 +3297,12 @@ def report(message):
         bot.send_message(id, 
                          "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
                          reply_markup=kb.continue_training_kb)
+        db.close()
         return
 
     if len(user_reports) == 3: 
         bot.send_message(id, "❌ Можно отправить только 3 обращения.") 
+        db.close()
         return
 
     text_report = message.text[8:]
@@ -3175,6 +3310,7 @@ def report(message):
     if text_report == '':
         text = f'✉️ Чтобы написать о своей(ем) проблеме/вопросе используй команду /report [текст проблемы]'
         bot.send_message(id, text, reply_markup=kb.back_main_menu_kb)
+        db.close()
         return
     
 
@@ -3189,6 +3325,7 @@ def report(message):
     text = f'✅ Обращение получено'
     bot.send_message(id, text, reply_markup=kb.back_main_menu_kb)
     bot.send_message(ID_CHAT_REPORTS, text_for_support)
+    db.close()
 
 
 @bot.message_handler(commands=['reply_report'])
@@ -3203,6 +3340,7 @@ def reply_report(message):
         args = message.text.split(maxsplit=3)[1:]
         if text == '' or len(args) < 3:
             bot.reply_to(message, 'Команда /reply_report [ID обращения] [состояние обращения] [текст]')
+            db.close()
             return
         
         id_report, state, text_reply_report = args[0], args[1], args[2]
@@ -3226,6 +3364,7 @@ def reply_report(message):
                                         f'Решение: Решено'
             else:
                 bot.reply_to(message, 'Введено неверное состояние!')
+                db.close()
                 return
 
             db.update_state_report(id_report, state, id_supported)
@@ -3234,6 +3373,8 @@ def reply_report(message):
             bot.reply_to(message, '✅ Удачно')
         except ValueError:
             bot.reply_to(message, 'Ошибка: ID обращения и состояние должны быть целыми числами')
+        finally:
+            db.close()
         
 
 @bot.message_handler(commands=['report_id'])
@@ -3249,6 +3390,7 @@ def report_id(message):
         bot.send_message(id, 
                          "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
                          reply_markup=kb.continue_training_kb)
+        db.close()
         return
     
     args = message.text.split(maxsplit=2)[1:]
@@ -3259,6 +3401,7 @@ def report_id(message):
 
         if info_report == None or info_report['id_addressing'] != id:
             bot.send_message(id, 'Такого обращения нет', reply_markup=kb.back_main_menu_kb)
+            db.close()
             return
         
         bot.send_message(id, '✅ Удачно', reply_markup=kb.back_main_menu_kb)
@@ -3269,6 +3412,8 @@ def report_id(message):
 
     except ValueError:
         bot.send_message(id, 'ID обращения должно быть цклым числом', reply_markup=kb.back_main_menu_kb)
+    finally:
+        db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'my_reports')
 def my_reports(call):
@@ -3287,6 +3432,7 @@ def my_reports(call):
                 f"────────────────────\n\n"
 
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_support_kb, parse_mode='html')
+    db.close()
 
 
 @bot.message_handler(commands=['daily_bonus'])
@@ -3299,6 +3445,7 @@ def daily_bonus(message):
         bot.send_message(id, 
                          "⛔ Пожалуйста, используйте кнопки для прохождения обучения. Вы не можете использовать другие команды сейчас.", 
                          reply_markup=kb.continue_training_kb)
+        db.close()
         return
 
     if user['daily_bonus'] == 0:
@@ -3316,6 +3463,7 @@ def daily_bonus(message):
                f"Ты сегодня уже забирал свой подарок.\n"\
                f"🕒 Приходи завтра за новым бонусом!"
         bot.send_message(id, text, parse_mode='HTML')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'daily_bonus')
 def daily_bonus_call(call):
@@ -3339,6 +3487,7 @@ def daily_bonus_call(call):
                f"Ты сегодня уже забирал свой подарок.\n"\
                f"🕒 Приходи завтра за новым бонусом!"
         bot.edit_message_text(text, id, call.message.message_id, parse_mode='HTML')
+    db.close()
 
 @bot.callback_query_handler(lambda call: call.data == 'check_follow')
 def check_follow(call):
@@ -3364,6 +3513,7 @@ def get_daily_bonus(call):
         text = f"⏳ Ты уже забирал сегодняшний бонус!"
         bot.delete_message(id, call.message.message_id)
         bot.answer_callback_query(call.id, text, show_alert=True)
+        db.close()
         return
     
     reward = gl.generate_random_daily_bonus()
@@ -3380,6 +3530,7 @@ def get_daily_bonus(call):
     else:
         db.set_inventory(id, reward[0], reward[1])
     db.set_daily_bonus(id, 1)
+    db.close()
 
     
 
@@ -3393,6 +3544,7 @@ def update_tasks():
     for user in users:
         info_of_user = db.get_info_for_tasks(user['id'])
         db.set_tasks(user['id'], gl.generate_tasks(info_of_user))
+    db.close()
 
 def send_notification_harvest():
     db = Database()
@@ -3401,10 +3553,12 @@ def send_notification_harvest():
         if gl.check_time(user['time_end']):
             bot.send_message(user['id_owner'], f"На грядке №{user['id_bed']} вырос урожай")
             db.set_state_bed(user['id_owner'], user['id_bed'], 2)
+    db.close()
 
 def daily_bonus_reset():
     db = Database()
     db.reset_daily_bonus()
+    db.close()
 
 def delete_post_market():
     db = Database()
@@ -3417,6 +3571,7 @@ def delete_post_market():
             text = f"🛒 Товар #{product['id']} снят с торговой площадки.\n"\
                     f"🔙 Все предметы были перемещены обратно в инвентарь."
             bot.send_message(product['id_owner'], text)
+    db.close()
     
 
 
