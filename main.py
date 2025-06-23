@@ -10,7 +10,7 @@ from database import Database
 import keyboard as kb
 import game_logic as gl
 import create_table
-TOKEN = "8055869737:AAEsL52Eh_jEsOSHbzQ3RjWNAJByfgY_Gd0"
+
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
@@ -1152,7 +1152,7 @@ def bed_1(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 1, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 1, 0, 0, 0, 0, 0)
 
     text = f"⚔️ [Грядка №1] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -1205,7 +1205,7 @@ def bed_2(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 2, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 2, 0, 0, 0, 0, 0)
 
     text = f"⚔️ [Грядка №2] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -1258,7 +1258,7 @@ def bed_3(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 3, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 3, 0, 0, 0, 0, 0)
 
     text = f"⚔️ [Грядка №3] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -1311,7 +1311,7 @@ def bed_4(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 4, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 4, 0, 0, 0, 0, 0)
 
     text = f"⚔️ [Грядка №4] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -1364,7 +1364,7 @@ def bed_5(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 5, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 5, 0, 0, 0, 0, 0)
 
     text = f"⚔️ [Грядка №5] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -1417,7 +1417,7 @@ def bed_6(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 6, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 6, 0, 0, 0, 0, 0)
 
     text = f"⚔️ [Грядка №6] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -1470,7 +1470,7 @@ def bed_7(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 7, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 7, 0, 0, 0, 0, 0)
 
     text = f"⚔️ [Грядка №7] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -1522,7 +1522,7 @@ def bed_8(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 8, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 8, 0, 0, 0, 0, 0)
     
     text = f"⚔️ [Грядка №8] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -1574,7 +1574,7 @@ def bed_9(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 9, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 9, 0, 0, 0, 0, 0)
 
     text = f"⚔️ [Грядка №9] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -1627,7 +1627,7 @@ def bed_10(call):
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 10, 0, 0, 0, 0)
+            db.set_seeds_bed(id, 10, 0, 0, 0, 0, 0)
 
     text = f"⚔️ [Грядка №10] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
@@ -3435,4 +3435,4 @@ def scheduler():
 
 scheduler_thread = threading.Thread(target=scheduler, daemon=True).start()
 
-bot.polling(none_stop=True, interval=0)
+bot.infinity_polling(interval=0)
