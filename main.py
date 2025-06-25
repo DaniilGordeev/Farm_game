@@ -3914,9 +3914,9 @@ schedule.every(1).minutes.do(send_notification_harvest)
 schedule.every().day.at('00:00').do(update_tasks)
 schedule.every().day.at('00:00').do(daily_bonus_reset)
 schedule.every(1).minutes.do(delete_post_market)
-schedule.every().day.at('16:40').do(reset_counter_day)
+schedule.every().day.at('00:00').do(reset_counter_day)
 schedule.every().monday.at("00:00").do(reset_counter_week)
-schedule.every().day.at("16:40").do(sl.send_logs)
+schedule.every().day.at("00:00").do(sl.send_logs)
 
 
 def scheduler():
