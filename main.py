@@ -13,7 +13,7 @@ import game_logic as gl
 import create_table
 import send_logs as sl
 
-TOKEN = "8055869737:AAEsL52Eh_jEsOSHbzQ3RjWNAJByfgY_Gd0"
+
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
