@@ -408,3 +408,15 @@ check_follow_kb.add(types.InlineKeyboardButton("🔍 Проверить подп
 
 get_daily_bonus_kb = types.InlineKeyboardMarkup()
 get_daily_bonus_kb.add(types.InlineKeyboardButton("🎁 Получить ежедневный бонус", callback_data='get_daily_bonus'))
+
+
+# Админ-панель
+main_admin_kb = types.InlineKeyboardMarkup(row_width=2)
+main_admin_kb.add(
+    types.InlineKeyboardButton('Команды', callback_data='commands_admin'),
+    types.InlineKeyboardButton('Статистика', callback_data='statistics'),
+    types.InlineKeyboardButton('Получить логи за сегодня', callback_data='get_log_today')
+)
+
+back_admin_main_kb = types.InlineKeyboardMarkup()
+back_admin_main_kb.add(types.InlineKeyboardButton('Назад', callback_data='admin_panel_call'))

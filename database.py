@@ -38,6 +38,28 @@ class Database:
         else:
             return False # Если есть пользователь
         
+    def add_new_users_counter(self):
+        self._cursor.execute(
+            '''
+            UPDATE statistics
+            SET new_users_day = new_users_day + 1,
+                new_users_week = new_users_week + 1
+            '''
+        )
+        self._db.commit()
+
+    def reset_counter_day(self):
+        self._cursor.execute('UPDATE statistics SET new_users_day = 0')
+        self._db.commit()
+    
+    def reset_counter_week(self):
+        self._cursor.execute('UPDATE statistics SET new_users_week = 0')
+        self._db.commit()
+
+    def get_statistics(self):
+        self._cursor.execute('SELECT * FROM statistics')
+        return self._cursor.fetchone()
+
     def set_user(self, id, buster_time):
         self._id = id
         self._buster_time = buster_time
@@ -368,6 +390,17 @@ class Database:
             (self._id, self._id_bed, )
         )
         return self._cursor.fetchone()
+
+    def get_beds(self, id):
+        self._id = id
+
+        self._cursor.execute(
+            '''
+            SELECT * FROM beds WHERE id_owner = ?
+            ''',
+            (self._id, )
+        )
+        return self._cursor.fetchall()
 
     def set_state_bed(self, id, id_bed, state):
         self._id = id

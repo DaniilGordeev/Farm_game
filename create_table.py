@@ -107,6 +107,12 @@ def create_database(database_name='users.db'):
         message_id_bot INTEGER, 
         buster_x10_time_all INTEGER
     );
+                         
+    -- Таблица: statistics
+    CREATE TABLE IF NOT EXISTS statistics (
+        new_users_day INTEGER DEFAULT 0,
+        new_users_week INTEGER DEFAULT 0
+    );
 
     COMMIT TRANSACTION;
     PRAGMA foreign_keys = on;
@@ -246,7 +252,11 @@ def update_database_schema(database_name: str = 'users.db'):
             ('message_id_bot', 'INTEGER'), 
             ('buster_x10_time_all', 'INTEGER'),
             ('daily_bonus', 'INTEGER DEFAULT 0')
-        ]
+        ],
+        'statistics': {
+            ('new_users_day', 'INTEGER DEFAULT 0'),
+            ('new_users_week', 'INTEGER DEFAULT 0')
+        }
     }
 
     # Подключение к базе данных
@@ -346,6 +356,9 @@ def update_database_schema(database_name: str = 'users.db'):
             """, items_data)
             print("Добавлены начальные данные в таблицу items")
 
+        cursor.execute("SELECT COUNT(*) FROM statistics")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute('INSERT or IGNORE INTO statistics (new_users_day, new_users_week) VALUES (0, 0)')
         conn.commit()
         print("Обновление структуры базы данных завершено успешно")
 

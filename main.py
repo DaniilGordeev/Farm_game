@@ -5,12 +5,15 @@ import time
 
 
 from config import TOKEN, HARVEST, PRICE_UPGRADE_DISEASE_RESISTANCE, PRICE_UPGRADE_TIME_WATERING, \
-                    PRICE_BUY_BEDS, ID_CHANNEL_MARKET, ID_CHANNEL_NEWS, ID_ITEM_FOR_SELL, ID_CHAT_REPORTS
+                    PRICE_BUY_BEDS, ID_CHANNEL_MARKET, ID_CHANNEL_NEWS, ID_ITEM_FOR_SELL, ID_CHAT_REPORTS, \
+                    ADMINS
 from database import Database
 import keyboard as kb
 import game_logic as gl
 import create_table
+import send_logs as sl
 
+TOKEN = "8055869737:AAEsL52Eh_jEsOSHbzQ3RjWNAJByfgY_Gd0"
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
@@ -389,7 +392,7 @@ def inventory(call):
         text = f'Твой инветарь пуст!'
     
     for item in items:
-        text += f"│ {item['name']} │ x{item['quantity']} │\n"
+        text += f"🆔 {item['item_id']} │ {item['name']} │ x{item['quantity']} │\n"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.box_kb)
     db.close()
 
@@ -3394,6 +3397,10 @@ def report_id(message):
         return
     
     args = message.text.split(maxsplit=2)[1:]
+    if len(args) < 2:
+        bot.send_message(id, "Использование: /report_id [ID обращения] [Текст]")
+        db.close()
+        return
     id_report, text = args[0], args[1]
     try:
         id_report = int(id_report)
@@ -3519,10 +3526,16 @@ def get_daily_bonus(call):
     reward = gl.generate_random_daily_bonus()
     info_item = db.get_items_id(reward[0])
 
-    text = f"🎉 <b>Поздравляем с получением бонуса!</b> 🎉\n\n"\
+    if reward[0] == 0:
+        text = f"🎉 <b>Поздравляем с получением бонуса!</b> 🎉\n\n"\
            f"Ты получил:\n"\
-           f"🎁 <b>{info_item['name']}</b> x{reward[1]}\n\n"\
+           f"🎁 <b>Монеты</b> x{reward[1]}\n\n"\
            f"🕒 Следующий бонус будет доступен завтра!"
+    else:
+        text = f"🎉 <b>Поздравляем с получением бонуса!</b> 🎉\n\n"\
+            f"Ты получил:\n"\
+            f"🎁 <b>{info_item['name']}</b> x{reward[1]}\n\n"\
+            f"🕒 Следующий бонус будет доступен завтра!"
            
     bot.edit_message_text(text, id, call.message.message_id, parse_mode='HTML')
     if reward[0] == 0:
@@ -3533,6 +3546,317 @@ def get_daily_bonus(call):
     db.close()
 
     
+# Админка
+@bot.message_handler(commands=['admin_panel'])
+def admin_panel(message):
+    id = message.from_user.id
+    if id in ADMINS:
+        text = f"Админ-панель" 
+        bot.send_message(id, text, reply_markup=kb.main_admin_kb)
+    return
+
+@bot.callback_query_handler(lambda call: call.data == 'admin_panel_call')
+def admin_panel_call(call):
+    id = call.from_user.id
+    if id in ADMINS:
+        text = f"Админ-панель" 
+        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.main_admin_kb)
+    return
+
+@bot.callback_query_handler(lambda call: call.data == 'commands_admin')
+def commands_admin(call):
+    id = call.from_user.id 
+    if id in ADMINS:
+        text = f"Команды: \n"\
+                f"/give_money [ID игрока] [сумма]\n"\
+                f"/take_money [ID игрока] [сумма]\n"\
+                f"/give_item [ID игрока] [ID предмета] [количество]\n"\
+                f"/take_item [ID игрока] [ID предмета] [количество]\n"\
+                f"/send_message_bot [текст]\n"\
+                f"/get_info_user [ID игрока] [Тип информации]\n"\
+                f"/get_logs - получение логов за сегодня"
+        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_admin_main_kb)
+    return
+
+@bot.callback_query_handler(lambda call: call.data == 'statistics')
+def statistics(call):
+    id = call.from_user.id
+    if id in ADMINS:
+        db = Database()
+        statistics = db.get_statistics()
+        text = f"Статистика:\n"\
+                f"Новых пользователей за сегодня: {statistics['new_users_day']}\n"\
+                f"Новых пользователей за неделю: {statistics['new_users_week']}\n"
+        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_admin_main_kb)
+        db.close()
+    return
+
+
+
+@bot.message_handler(commands=['give_money'])
+def give_money(message):
+    '''
+    /give_money [ID player] [quantity]
+    '''
+    id = message.from_user.id
+    if id in ADMINS:
+        db = Database()
+        args = message.text.split(maxsplit=2)[1:]
+
+        if len(args) < 2:
+            bot.send_message(id, "Использование: /give_money [ID игрока] [Количество] ")
+            db.close()
+            return
+        
+        id_player, quantity = args[0], args[1]
+        try:
+            id_player = int(id_player)
+            quantity = int(quantity)
+
+            if db.check_users(id_player):
+                bot.send_message(id, "Такого пользователя нет!")
+                return
+
+            db.add_money(id_player, quantity)
+
+            text = f"Игроку {id_player} начислено {quantity} монет"
+            bot.send_message(id, text)
+            print(f"Админ: {id}, Начислил игроку: {id_player} {quantity} монет")
+        except ValueError:
+            bot.send_message(id, "ID игрока и сумма должны быть числами!")
+        finally:
+            db.close()
+    return
+
+@bot.message_handler(commands=['take_money'])
+def take_money(message):
+    id = message.from_user.id
+    if id in ADMINS:
+        db = Database()
+        args = message.text.split(maxsplit=2)[1:]
+
+        if len(args) < 2:
+            bot.send_message(id, "Использование: /take_money [ID игрока] [Количество] ")
+            db.close()
+            return
+        
+        id_player, quantity = args[0], args[1]
+        try:
+            id_player = int(id_player)
+            quantity = int(quantity)
+
+            if db.check_users(id_player):
+                bot.send_message(id, "Такого пользователя нет!")
+                return
+
+            user = db.get_me(id_player)
+
+            if user['money'] < quantity:
+                bot.send_message(id, "Ты не можешь забрать сумма больше, чем есть на руках у игрока")
+                return
+            
+            db.edit_money(id_player, quantity)
+            
+
+            text = f"Игроку {id_player} списано {quantity} монет"
+            bot.send_message(id, text)
+            print(f"Админ: {id}, Списал игроку: {id_player} {quantity} монет")
+        except ValueError:
+            bot.send_message(id, "ID игрока и сумма должны быть числами!")
+        finally:
+            db.close()
+    return
+
+@bot.message_handler(commands=['give_item'])
+def give_item(message):
+    '''
+    /give_item [ID player] [ID item] [quantity]
+    '''
+    id = message.from_user.id
+    if id in ADMINS:
+        db = Database()
+        args = message.text.split(maxsplit=3)[1:]
+
+        if len(args) < 3:
+            bot.send_message(id, "Использование: /give_item [ID игрока] [ID предмета] [Количество] ")
+            db.close()
+            return
+        
+        id_player, id_item, quantity = args[0], args[1], args[2]
+        try:
+            id_player = int(id_player)
+            id_item = int(id_item)
+            quantity = int(quantity)
+            
+            if db.check_users(id_player):
+                bot.send_message(id, "Такого пользователя нет!")
+                return
+
+            info_item = db.get_items_id(id_item)
+            db.set_inventory(id_player, id_item, quantity)
+
+            text = f"Игроку {id_player} добавлен предмет {info_item['name']}, количество: {quantity}"
+            bot.send_message(id, text)
+            print(f"Админ: {id}, Выдал игроку: {id_player} Предмет: {info_item['name']} Кол-во: {quantity}")
+        except ValueError:
+            bot.send_message(id, "ID игрока и сумма должны быть числами!")
+        finally:
+            db.close()
+    return
+
+@bot.message_handler(commands=['take_item'])
+def take_item(message):
+    '''
+    /take_item [ID player] [ID item] [quantity]
+    '''
+    id = message.from_user.id
+    if id in ADMINS:
+        db = Database()
+        args = message.text.split(maxsplit=3)[1:]
+
+        if len(args) < 3:
+            bot.send_message(id, "Использование: /take_item [ID игрока] [ID предмета] [Количество] ")
+            db.close()
+            return
+        
+        id_player, id_item, quantity = args[0], args[1], args[2]
+        try:
+            id_player = int(id_player)
+            id_item = int(id_item)
+            quantity = int(quantity)
+            
+            if db.check_users(id_player):
+                bot.send_message(id, "Такого пользователя нет!")
+                return
+
+            info_item = db.get_items_id(id_item)
+            db.remove_item_id(id_player, id_item, quantity)
+
+            text = f"Игроку {id_player} удалён предмет {info_item['name']}, количество: {quantity}"
+            bot.send_message(id, text)
+            print(f"Админ: {id}, Удалил игроку: {id_player} Предмет: {info_item['name']} Кол-во: {quantity}")
+        except ValueError:
+            bot.send_message(id, "ID игрока и сумма должны быть числами!")
+        finally:
+            db.close()
+    return
+
+@bot.message_handler(commands=['send_message_bot'])
+def send_message_bot(message):
+    '''
+    /send_message_bot [text]
+    '''
+    id = message.from_user.id
+    if id in ADMINS:
+        db = Database()
+        text = message.text.split(maxsplit=1)[1:]
+
+        if not text:
+            bot.send_message(id, "Введи текст!")
+            db.close()
+            return
+        
+        users = db.get_all_id_users()
+        for user in users:
+            bot.send_message(user, text)
+        db.close()
+    return
+
+@bot.message_handler(commands=['get_info_user'])
+def get_info_user(message):
+    '''
+    /get_info_user [ID player] [type]
+    
+    0 - user
+    1 - farm
+    2 - bed
+    3 - inventory
+    4 - tool
+    5 - tasks
+    '''
+    id = message.from_user.id
+    if id in ADMINS:
+        db = Database()
+        args = message.text.split(maxsplit=2)[1:]
+
+        if len(args) < 2:
+            bot.send_message(id, "Использование: /get_info_user [ID игрока] [Тип] ")
+            db.close()
+            return
+        
+        id_player, type = args[0], args[1]
+        try:
+            id_player = int(id_player)
+            type = int(type)
+
+            if db.check_users(id_player):
+                bot.send_message(id, "Такого пользователя нет!")
+                return
+
+            text = f"Пользователь: {id_player}\n\n"
+            if type == 0:
+                user = db.get_me(id_player)
+                text += f"<b>Информация о пользователе:</b> \n"\
+                        f"Денег: {user['money']}\n"\
+                        f"Местоположение: {user['locate']}\n"\
+                        f"Золотых монет: {user['gold_money']}\n"\
+                        f"Собран ли ежед. бонус: {user['daily_bonus']}"
+            elif type == 1:
+                user_farm = db.get_farm(id_player)
+                text += f"<b>Ферма</b>\n"\
+                        f"Кол-во грядок: {user_farm['amount_beds']}\n"\
+                        f"Бустер: {user_farm['buster']}\n\n"
+            elif type == 2:
+                user_bed = db.get_beds(id_player)
+                for bed in user_bed:
+                    text += f"Грядка №{bed['id']}\n"\
+                            f"Состояние: {bed['state']}\n"\
+                            f"ID посадки: {bed['id_planted']}\n"\
+                            f"Время окончания полива: {bed['time_end_watering']}\n"\
+                            f"Время сбора урожая: {bed['time_end']}\n"\
+                            f"Лунок: {bed['holes']}\n"\
+                            f"Шанс заболевания: {bed['chance_resistance']}\n"\
+                            f"Количество посадки: {bed['quantity']}\n\n"
+            elif type == 3:
+                user_inventory = db.get_inventory(id_player)
+                text += f"<b>Инвентарь</b>\n"
+                for item in user_inventory:
+                    text += f"🆔 {item['item_id']} │ {item['name']} │ x{item['quantity']} │\n"
+            elif type == 4:
+                user_tool = db.get_rake(id_player)
+                text += f"<b>Грабли</b>\n"\
+                        f"ID граблей: {user_tool['tool_id']}\n"\
+                        f"Прочность: {user_tool['strength']}"
+            elif type == 5:
+                user_tasks = db.get_tasks(id_player)
+                text += f"<b>Задания</b>\n"\
+                        f"Задание №1\n"\
+                        f"{user_tasks['text_task1']}\n"\
+                        f"Выполнено: {user_tasks['task1_completed']}\n\n"\
+                        f"Задание №2\n"\
+                        f"{user_tasks['text_task2']}\n"\
+                        f"Выполнено: {user_tasks['task2_completed']}\n\n"
+            else:
+                text = f"Нет такого типа!"
+            bot.send_message(id, text, parse_mode='html')
+
+        except ValueError:
+            bot.send_message(id, "ID игрока и тип должны быть числами")
+        finally:
+            db.close()
+
+
+@bot.callback_query_handler(lambda call: call.data == 'get_log_today')
+def get_logs(call):
+    id = call.from_user.id
+    if id in ADMINS:
+        sl.send_logs_today()
+    return
+
+
+
+
+
 
 
 
@@ -3573,13 +3897,26 @@ def delete_post_market():
             bot.send_message(product['id_owner'], text)
     db.close()
     
+def reset_counter_day():
+    db = Database()
+    db.reset_counter_day()
+    db.close()
+
+def reset_counter_week():
+    db = Database()
+    db.reset_counter_week()
+    db.close()
+
+
 
 
 schedule.every(1).minutes.do(send_notification_harvest)
 schedule.every().day.at('00:00').do(update_tasks)
 schedule.every().day.at('00:00').do(daily_bonus_reset)
 schedule.every(1).minutes.do(delete_post_market)
-
+schedule.every().day.at('16:40').do(reset_counter_day)
+schedule.every().monday.at("00:00").do(reset_counter_week)
+schedule.every().day.at("16:40").do(sl.send_logs)
 
 
 def scheduler():
