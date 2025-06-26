@@ -1,4 +1,5 @@
 from telebot import types
+from database import Database
 
 profile_kb = types.InlineKeyboardMarkup()
 profile_kb.add(
@@ -40,11 +41,15 @@ seeds_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='shop')
 seeds_2_kb = types.InlineKeyboardMarkup()
 seeds_2_kb.add(types.InlineKeyboardButton('🌶️ Огненный перец (семена)', callback_data='buy_seeds_fire_pepper'))
 seeds_2_kb.add(types.InlineKeyboardButton('🌸 Лунный лотос (семена)', callback_data='buy_seeds_moon_lotus'))
+seeds_2_kb.add(types.InlineKeyboardButton('🔀 Случайное семечко', callback_data='buy_seeds_random'))
 seeds_2_kb.add(
     types.InlineKeyboardButton('⬅️', callback_data='seeds'),
     types.InlineKeyboardButton('2/2', callback_data='q')
 )
 seeds_2_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='shop'))
+
+back_seeds_kb = types.InlineKeyboardMarkup()
+back_seeds_kb.add(types.InlineKeyboardButton('🔙 Назад', callback_data='seeds'))
 
 card_seeds_kb = types.InlineKeyboardMarkup()
 card_seeds_kb.add(
@@ -423,9 +428,3 @@ back_admin_main_kb = types.InlineKeyboardMarkup()
 back_admin_main_kb.add(types.InlineKeyboardButton('Назад', callback_data='admin_panel_call'))
 
 
-list_event_kb = types.InlineKeyboardMarkup()
-list_event_kb.add(
-    types.InlineKeyboardButton('Случайное семечко', callback_data='event_random_seed'),
-    types.InlineKeyboardButton('Фермерская гонка', callback_data='event_farm_race'),
-    types.InlineKeyboardButton('Общая цель', callback_data='event_all_goal')
-)

@@ -149,7 +149,8 @@ def create_database(database_name='users.db'):
         (26, 'Легендарный бокс', None, None, None, 'бокс'),
         (27, 'Бустер "Отказ от воды"', None, None, None, 'бустер'),
         (28, 'Бустер "Удвоенный урожай"', None, None, None, 'бустер'),
-        (29, 'Бустер "Отсутствие болезней"', None, None, None, 'бустер')
+        (29, 'Бустер "Отсутствие болезней"', None, None, None, 'бустер'),
+        (30, 'Случайное семечко', 425, None, None, 'семена')
     ]
 
     cursor.executemany("""
@@ -262,7 +263,9 @@ def update_database_schema(database_name: str = 'users.db'):
             ('goal_complete', 'INTEGER'),
             ('id_planted', 'INTEGER'),
             ('all_goal', 'INTEGER'),
-            ('end_time_event', 'TEXT')
+            ('start_time_event', 'TEXT'),
+            ('end_time_event', 'TEXT'),
+            ('active', 'INTEGER')
         }
     }
 
@@ -326,6 +329,7 @@ def update_database_schema(database_name: str = 'users.db'):
         if cursor.fetchone()[0] == 0:
             # Таблица items пустая - вставляем начальные данные
             items_data = [
+                # id | name | price | sell_price | strength | type
                 (0, None, None, None, None, None),
                 (1, 'Пшеница (семена)', 10, None, None, 'семена'),
                 (2, 'Морковь (семена)', 20, None, None, 'семена'),
@@ -355,7 +359,8 @@ def update_database_schema(database_name: str = 'users.db'):
                 (26, 'Легендарный бокс', None, None, None, 'бокс'),
                 (27, 'Бустер "Отказ от воды"', None, None, None, 'бустер'),
                 (28, 'Бустер "Удвоенный урожай"', None, None, None, 'бустер'),
-                (29, 'Бустер "Отсутствие болезней"', None, None, None, 'бустер')
+                (29, 'Бустер "Отсутствие болезней"', None, None, None, 'бустер'),
+                (30, 'Случайное семечко', 425, None, None, 'семена')
             ]
             cursor.executemany("""
             INSERT OR IGNORE INTO items (item_id, name, price, sell_price, strength, type) 

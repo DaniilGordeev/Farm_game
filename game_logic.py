@@ -231,3 +231,15 @@ def generate_random_daily_bonus():
 
 def get_now_time():
     return datetime.now()
+
+def check_format_date(date_string, date_format):
+    try:
+        datetime.strptime(date_string, date_format)
+        return True
+    except ValueError:
+        return False
+
+def end_time_event(time_start, growth_hours = 0):
+    time_start = datetime.strptime(time_start, "%Y-%m-%d %H:%M:%S")
+    time_end = time_start + timedelta(hours=growth_hours)
+    return time_end.strftime("%Y-%m-%d %H:%M:%S")

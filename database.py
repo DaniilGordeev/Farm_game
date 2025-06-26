@@ -968,23 +968,48 @@ class Database:
 
     def get_event(self):
         self._cursor.execute('SELECT * FROM events')
-        return self._cursor.fetchone()
+        return self._cursor.fetchall()
     
-    def set_event(self):
+    def set_event(self, id_event, id_planted, start_time_event, end_time_event, all_goal=0):
+        self._id_event = id_event
+        self._id_planted = id_planted
+        self._start_time_event = start_time_event
+        self._end_time_event = end_time_event
+        self._all_goal = all_goal
+
         self._cursor.execute(
             '''
-            INSERT INTO events (id_event, all_goal, end_time_event)
-            VALUES (?, ?, ?)
-            '''
+            INSERT INTO events (id_event, goal_complete, id_planted, all_goal, start_time_event, end_time_event)
+            VALUES (?, 0, ?, ?, ?, ?)
+            ''',
+            (self._id_event, self._id_planted, self._all_goal, self._start_time_event, self._end_time_event,)
         )
         self._db.commit()
 
-    def delete_event(self):
+    def delete_event(self, id_event):
+        self._id_event = id_event
+
         self._cursor.execute(
             '''
             DELETE FROM events
+            WHERE id_event = ?
             '''
+            (self._id_event, )
         )
         self._db.commit()
+
+    def active_event(self, id_event):
+        self._id_event = id_event
+
+        self._cursor.execute(
+            '''
+            UPDATE events
+            SET active = 1,
+            WHERE id_event = ?
+            ''',
+            (self._id_event, )
+        )
+        self._db.commit()
+
     
     

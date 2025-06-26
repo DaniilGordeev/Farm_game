@@ -6,7 +6,7 @@ import time
 
 from config import TOKEN, HARVEST, PRICE_UPGRADE_DISEASE_RESISTANCE, PRICE_UPGRADE_TIME_WATERING, \
                     PRICE_BUY_BEDS, ID_CHANNEL_MARKET, ID_CHANNEL_NEWS, ID_ITEM_FOR_SELL, ID_CHAT_REPORTS, \
-                    ADMINS, EVENTS
+                    ADMINS, EVENTS, SEEDS, TIME_SEEDS
 from database import Database
 import keyboard as kb
 import game_logic as gl
@@ -430,13 +430,7 @@ def buyer(call):
     text = f"🌱 *Фермерский рынок* 🏪\n\n"\
             f"📃 Прайс-лист Скупщика:\n"
     for item in price_harvest:
-        text += f"<i>🔹 {item['name']} - {item['sell_price']} монет</i>\n"         
-            # f"<i>🔹 Пшеница — 15 монет</i>\n"\
-            # f"<i>🔹 Морковь — 30 монет</i>\n"\
-            # f"<i>🔹 Кукуруза — 40 монет</i>\n"\
-            # f"<i>🔹 Картофель — 80 монет</i>\n"\
-            # f"<i>🔹 Лунный лотос — 800 монет</i>\n"\
-            # f"<i>🔹 Огненный перец — 450 монет</i>"
+        text += f"<i>🔹 {item['name']} - {item['sell_price']} монет</i>\n"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.buyer(inventory_user), parse_mode='html')
     db.edit_locate(id, 'buyer')
     db.close()
@@ -588,126 +582,44 @@ def seeds_2(call):
     id = call.from_user.id 
     bot.edit_message_reply_markup(id, call.message.message_id, reply_markup=kb.seeds_2_kb)
 
-# Пшеница
-@bot.callback_query_handler(lambda call: call.data == 'buy_seeds_wheat') 
-def buy_seeds_wheat(call):
+
+@bot.callback_query_handler(lambda call: call.data.startswith('buy_seeds_'))
+def buy_seeds(call):
     id = call.from_user.id
+    name_seed = call.data.split('_', maxsplit=2)[2]
     db = Database()
+    event = db.get_event()
+
+    if name_seed == 'random':
+        if event['id_event'] != 1:
+            text = f"Ты не можешь купить эти семечки\n"\
+                    f"Они доступны, только при ивенте «Случайное семечко»"
+            bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_seeds_kb)
+            db.close()
+            return
+        
+    id_seed = SEEDS[name_seed]
+    time_seed = TIME_SEEDS[id_seed]
+    db.edit_locate(id, call.data)
     user = db.get_me(id)
-    db.edit_locate(id, 'buy_seeds_wheat')
-    item = db.get_items_id(1)
+    item = db.get_items_id(id_seed)
     text =  f"〰️〰️〰️〰️〰️\n"\
             f"{item['name']}\n"\
             f"〰️〰️〰️〰️〰️\n"\
             f"{item['price']} монет\n"\
             f"〰️〰️〰️〰️〰️\n"\
-            f"🕝 Время роста: 10 минут\n"\
+            f"🕝 Время роста: {time_seed} \n"\
             f"〰️〰️〰️〰️〰️\n"\
             f"🪙 Твои монеты: {user['money']}"
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
     db.close()
 
-# Морковь
-@bot.callback_query_handler(lambda call: call.data == 'buy_seeds_carrot') 
-def buy_seeds_carrot(call):
+@bot.callback_query_handler(lambda call: call.data.startswith('quantity_buy_'))
+def quantity_buy(call):
     id = call.from_user.id
     db = Database()
     user = db.get_me(id)
-    db.edit_locate(id, 'buy_seeds_carrot')
-    item = db.get_items_id(2)
-    text = f"〰️〰️〰️〰️〰️\n"\
-            f"{item['name']}\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{item['price']} монет\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🕝 Время роста: 20 минут\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🪙 Твои монеты: {user['money']}"
-    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
-    db.close()
-
-# Кукуруза
-@bot.callback_query_handler(lambda call: call.data == 'buy_seeds_corn')
-def buy_seeds_corn(call):
-    id = call.from_user.id
-    db = Database()
-    user = db.get_me(id)
-    db.edit_locate(id, 'buy_seeds_corn')
-    item = db.get_items_id(3)
-    text = f"〰️〰️〰️〰️〰️\n"\
-            f"{item['name']}\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{item['price']} монет\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🕝 Время роста: 30 минут\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🪙 Твои монеты: {user['money']}"
-    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
-    db.close()
-
-# Картофель
-@bot.callback_query_handler(lambda call: call.data == 'buy_seeds_potato')
-def buy_seeds_potato(call):
-    id = call.from_user.id
-    db = Database()
-    user = db.get_me(id)
-    db.edit_locate(id, 'buy_seeds_potato')
-    item = db.get_items_id(4)
-    text = f"〰️〰️〰️〰️〰️\n"\
-            f"{item['name']}\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{item['price']} монет\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🕝 Время роста: 45 минут\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🪙 Твои монеты: {user['money']}"
-    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
-    db.close()
-
-# Лунный лотос
-@bot.callback_query_handler(lambda call: call.data == 'buy_seeds_moon_lotus')
-def buy_seeds_moon_lotus(call):
-    id = call.from_user.id
-    db = Database()
-    user = db.get_me(id)
-    db.edit_locate(id, 'buy_seeds_moon_lotus')
-    item = db.get_items_id(5)
-    text = f"〰️〰️〰️〰️〰️\n"\
-            f"{item['name']}\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{item['price']} монет\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🕝 Время роста: 4 часа\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🪙 Твои монеты: {user['money']}"
-    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
-    db.close()
-
-# Огненный перец
-@bot.callback_query_handler(lambda call: call.data == 'buy_seeds_fire_pepper')
-def buy_seeds_fire_pepper(call):
-    id = call.from_user.id
-    db = Database()
-    user = db.get_me(id)
-    db.edit_locate(id, 'buy_seeds_fire_pepper')
-    item = db.get_items_id(6)
-    text =  f"〰️〰️〰️〰️〰️\n"\
-            f"{item['name']}\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{item['price']} монет\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🕝 Время роста: 2 часа 30 минут\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🪙 Твои монеты: {user['money']}"
-    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
-    db.close()
-
-
-@bot.callback_query_handler(lambda call: call.data == 'quantity_buy_1')
-def quantity_buy_1(call):
-    id = call.from_user.id
-    db = Database()
-    user = db.get_me(id)
+    quantity = int(call.data.split('_', maxsplit=2)[2])
 
     if not user['locate'].startswith('buy_seeds_'):
         text = f"❌ Ты не находишься в магазине\n"\
@@ -715,142 +627,26 @@ def quantity_buy_1(call):
         bot.send_message(id, text)
         return
 
-    if user['locate'] == 'buy_seeds_wheat':
-        item = db.get_items_id(1)
-        dop_text = f"🕝 Время роста: 10 минут\n"
-    if user['locate'] == 'buy_seeds_corn':
-        item = db.get_items_id(3)
-        dop_text = f"🕝 Время роста: 30 минут\n"
-    if user['locate'] == 'buy_seeds_carrot':
-        item = db.get_items_id(2)
-        dop_text = f"🕝 Время роста: 20 минут\n"
-    if user['locate'] == 'buy_seeds_potato':
-        item = db.get_items_id(4)
-        dop_text = f"🕝 Время роста: 45 минут\n"
-    if user['locate'] == 'buy_seeds_moon_lotus':
-        item = db.get_items_id(5)
-        dop_text = f"🕝 Время роста: 4 часа\n"
-    if user['locate'] == 'buy_seeds_fire_pepper':
-        item = db.get_items_id(6)
-        dop_text = f"🕝 Время роста: 2 часа 30 минут\n"
-
+    seed = user['locate'].split('_', maxsplit=2)[2]
+    id_seed = SEEDS[seed]
+    time_seed = TIME_SEEDS[id_seed]
+    item = db.get_items_id(id_seed)
+    
     if user['money'] >= item['price']:
-        db.set_inventory(id, int(item['item_id']))
+        db.set_inventory(id, int(item['item_id']), quantity)
         db.edit_money(id, int(item['price']))
         user = db.get_me(id)
-        text = f"✅ Куплено: **{item['name']}** (1 шт.)"
+        text = f"✅ Куплено: **{item['name']}** ({quantity} шт.)"
         text_for_message = f"〰️〰️〰️〰️〰️\n"\
-            f"{item['name']}\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{item['price']} монет\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{dop_text}"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🪙 Твои монеты: {user['money']}"
+                            f"{item['name']}\n"\
+                            f"〰️〰️〰️〰️〰️\n"\
+                            f"{item['price']} монет\n"\
+                            f"〰️〰️〰️〰️〰️\n"\
+                            f"🕝 Время роста: {time_seed} \n"\
+                            f"〰️〰️〰️〰️〰️\n"\
+                            f"🪙 Твои монеты: {user['money']}"
         bot.edit_message_text(text_for_message, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
-        print(f"{gl.get_now_time()} - {id} Купил {item['name']} 1 шт")
-    else:
-        text = f"😢 Упс! Не хватает монет..."
-    bot.answer_callback_query(call.id, text)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'quantity_buy_5')
-def quantity_buy_5(call):
-    id = call.from_user.id
-    db = Database()
-    user = db.get_me(id)
-
-    if not user['locate'].startswith('buy_seeds_'):
-        text = f"❌ Ты не находишься в магазине\n"\
-                f"Используй команду /city"
-        bot.send_message(id, text)
-        return
-    
-    if user['locate'] == 'buy_seeds_wheat':
-        item = db.get_items_id(1)
-        dop_text = f"🕝 Время роста: 10 минут\n"
-    if user['locate'] == 'buy_seeds_corn':
-        item = db.get_items_id(3)
-        dop_text = f"🕝 Время роста: 30 минут\n"
-    if user['locate'] == 'buy_seeds_carrot':
-        item = db.get_items_id(2)
-        dop_text = f"🕝 Время роста: 20 минут\n"
-    if user['locate'] == 'buy_seeds_potato':
-        item = db.get_items_id(4)
-        dop_text = f"🕝 Время роста: 45 минут\n"
-    if user['locate'] == 'buy_seeds_moon_lotus':
-        item = db.get_items_id(5)
-        dop_text = f"🕝 Время роста: 4 часа\n"
-    if user['locate'] == 'buy_seeds_fire_pepper':
-        item = db.get_items_id(6)
-        dop_text = f"🕝 Время роста: 2 часа 30 минут\n"
-
-    if user['money'] >= item['price']*5:
-        db.set_inventory(id, int(item['item_id']), 5)
-        db.edit_money(id, int(item['price'])*5)
-        user = db.get_me(id)
-        text = f"✅ Куплено: **{item['name']}** (5 шт.)"
-        text_for_message = f"〰️〰️〰️〰️〰️\n"\
-            f"{item['name']}\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{item['price']} монет\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{dop_text}"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🪙 Твои монеты: {user['money']}"
-        bot.edit_message_text(text_for_message, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
-        print(f"{gl.get_now_time()} - {id} Купил {item['name']} 5 шт")
-    else:
-        text = f"😢 Упс! Не хватает монет..."
-    bot.answer_callback_query(call.id, text)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'quantity_buy_10')
-def quantity_buy_10(call):
-    id = call.from_user.id
-    db = Database()
-    user = db.get_me(id)
-
-    if not user['locate'].startswith('buy_seeds_'):
-        text = f"❌ Ты не находишься в магазине\n"\
-                f"Используй команду /city"
-        bot.send_message(id, text)
-        return
-    
-    if user['locate'] == 'buy_seeds_wheat':
-        item = db.get_items_id(1)
-        dop_text = f"🕝 Время роста: 10 минут\n"
-    if user['locate'] == 'buy_seeds_corn':
-        item = db.get_items_id(3)
-        dop_text = f"🕝 Время роста: 30 минут\n"
-    if user['locate'] == 'buy_seeds_carrot':
-        item = db.get_items_id(2)
-        dop_text = f"🕝 Время роста: 20 минут\n"
-    if user['locate'] == 'buy_seeds_potato':
-        item = db.get_items_id(4)
-        dop_text = f"🕝 Время роста: 45 минут\n"
-    if user['locate'] == 'buy_seeds_moon_lotus':
-        item = db.get_items_id(5)
-        dop_text = f"🕝 Время роста: 4 часа\n"
-    if user['locate'] == 'buy_seeds_fire_pepper':
-        item = db.get_items_id(6)
-        dop_text = f"🕝 Время роста: 2 часа 30 минут\n"
-
-    if user['money'] >= item['price']*10:
-        db.set_inventory(id, int(item['item_id']), 10)
-        db.edit_money(id, int(item['price'])*10)
-        user = db.get_me(id)
-        text = f"✅ Куплено: **{item['name']}** (10 шт.)"
-        text_for_message = f"〰️〰️〰️〰️〰️\n"\
-            f"{item['name']}\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{item['price']} монет\n"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"{dop_text}"\
-            f"〰️〰️〰️〰️〰️\n"\
-            f"🪙 Твои монеты: {user['money']}"
-        bot.edit_message_text(text_for_message, id, call.message.message_id, reply_markup=kb.card_seeds_kb)
-        print(f"{gl.get_now_time()} - {id} Купил {item['name']} 10 шт")
+        print(f"{gl.get_now_time()} - {id} Купил {item['name']} {quantity} шт")
     else:
         text = f"😢 Упс! Не хватает монет..."
     bot.answer_callback_query(call.id, text)
@@ -3573,7 +3369,8 @@ def commands_admin(call):
                 f"/take_item [ID игрока] [ID предмета] [количество]\n"\
                 f"/send_message_bot [текст]\n"\
                 f"/get_info_user [ID игрока] [Тип информации]\n"\
-                f"/get_logs - получение логов за сегодня"
+                f"/get_logs - получение логов за сегодня\n"\
+                f"/start_event [ID ивента] [Время старта] [На какое время ивент] [Общая цель (если необходима)]"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_admin_main_kb)
     return
 
@@ -3862,7 +3659,7 @@ def events(call):
         db = Database()
         event = db.get_event()
         if event == None:
-            bot.send_message(id, "Нет активных ивентов!", reply_markup=kb.list_event_kb)
+            bot.edit_message_text("Нет активных ивентов!", id, call.message.message_id, reply_markup=kb.back_admin_main_kb)
             db.close()
             return
         name_event = EVENTS[event['id_event']]
@@ -3871,6 +3668,59 @@ def events(call):
                 f"Закончится: {event['time_end_event']}\n"\
                 f"Что необходимо вырастить: {name_planted} \n"\
                 f"Общая цель: {event['goal_complete']}/{event['all_goal']}"
+        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_admin_main_kb)
+    return 
+
+@bot.message_handler(commands=['start_event'])
+def start_event(message):
+    '''
+    /start_event [ID ивента] [id_planted] [Время старта (YYYY-MM-DD HH-MM-SS)] [На какое время ивент (в часах)] [Общая цель (0 если не нужна)]
+    '''
+    id = message.from_user.id 
+    if id in ADMINS:
+        db = Database()
+        event = db.get_event()
+        args = message.text.split()[1:]
+        time_start = args[2] + ' ' + args[3]
+        if len(args) < 6:
+            bot.send_message(id, "/start_event [ID ивента] [id_planted] [Время старта (YYYY-MM-DD HH-MM-SS)] " \
+                                "[На какое время ивент (в часах)] [Общая цель (0 если не нужна)]")
+            return
+
+        if not gl.check_format_date(time_start, '%Y-%m-%d %H:%M:%S'):
+            bot.send_message(id, "Неверный формат даты! Должен быть ГГГГ-ММ-ДД ЧЧ-ММ-СС")
+            return
+
+        if gl.check_time(time_start):
+            bot.send_message(id, "Ты не можешь запустить ивент раньше чем сейчас!")
+            return
+
+        event_id, id_planted, time_end, all_goal = args[0], args[1], args[4], args[5] 
+        try:
+            event_id = int(event_id)
+            id_planted = int(id_planted)
+            all_goal = int(all_goal)
+            time_end = int(time_end)
+            time_end = gl.end_time_event(time_start, time_end)
+
+            event_name = EVENTS[event_id]
+
+            db.set_event(event_id, id_planted, time_start, time_end)
+
+            text = f"Запланирован ивент: {event_name}\n"\
+                    f"Дата начала: {time_start}\n"\
+                    f"Дата окончания: {time_end}\n"\
+                    f"Посадка: {id_planted}\n"\
+                    f"Общая цель: {all_goal}"
+            bot.send_message(id, text)
+
+        except ValueError:
+            bot.send_message(id, "ID ивента должен быть числом")
+        finally:
+            db.close()
+                
+            
+
 
 
 
@@ -3926,7 +3776,16 @@ def reset_counter_week():
     db.reset_counter_week()
     db.close()
 
-
+def active_deactive_event():
+    db = Database()
+    events = db.get_event()
+    for event in events:
+        if gl.check_time(event['start_time_event']):
+            db.active_event(event['id_event'])
+        
+        if gl.check_time(event['end_time_event']):
+            db.delete_event()
+    db.close()
 
 
 schedule.every(1).minutes.do(send_notification_harvest)
@@ -3936,6 +3795,7 @@ schedule.every(1).minutes.do(delete_post_market)
 schedule.every().day.at('00:00').do(reset_counter_day)
 schedule.every().monday.at("00:00").do(reset_counter_week)
 schedule.every().day.at("00:00").do(sl.send_logs)
+schedule.every().hour.at(":00").do(active_deactive_event)
 
 
 def scheduler():
