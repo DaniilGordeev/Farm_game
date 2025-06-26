@@ -415,8 +415,17 @@ main_admin_kb = types.InlineKeyboardMarkup(row_width=2)
 main_admin_kb.add(
     types.InlineKeyboardButton('Команды', callback_data='commands_admin'),
     types.InlineKeyboardButton('Статистика', callback_data='statistics'),
-    types.InlineKeyboardButton('Получить логи за сегодня', callback_data='get_log_today')
+    types.InlineKeyboardButton('Получить логи за сегодня', callback_data='get_log_today'),
+    types.InlineKeyboardButton('Ивенты', callback_data='events')
 )
 
 back_admin_main_kb = types.InlineKeyboardMarkup()
 back_admin_main_kb.add(types.InlineKeyboardButton('Назад', callback_data='admin_panel_call'))
+
+
+list_event_kb = types.InlineKeyboardMarkup()
+list_event_kb.add(
+    types.InlineKeyboardButton('Случайное семечко', callback_data='event_random_seed'),
+    types.InlineKeyboardButton('Фермерская гонка', callback_data='event_farm_race'),
+    types.InlineKeyboardButton('Общая цель', callback_data='event_all_goal')
+)

@@ -256,6 +256,13 @@ def update_database_schema(database_name: str = 'users.db'):
         'statistics': {
             ('new_users_day', 'INTEGER DEFAULT 0'),
             ('new_users_week', 'INTEGER DEFAULT 0')
+        },
+        'events': {
+            ('id_event', 'INTEGER'),
+            ('goal_complete', 'INTEGER'),
+            ('id_planted', 'INTEGER'),
+            ('all_goal', 'INTEGER'),
+            ('end_time_event', 'TEXT')
         }
     }
 

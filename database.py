@@ -965,3 +965,26 @@ class Database:
             '''
         )
         self._db.commit()
+
+    def get_event(self):
+        self._cursor.execute('SELECT * FROM events')
+        return self._cursor.fetchone()
+    
+    def set_event(self):
+        self._cursor.execute(
+            '''
+            INSERT INTO events (id_event, all_goal, end_time_event)
+            VALUES (?, ?, ?)
+            '''
+        )
+        self._db.commit()
+
+    def delete_event(self):
+        self._cursor.execute(
+            '''
+            DELETE FROM events
+            '''
+        )
+        self._db.commit()
+    
+    

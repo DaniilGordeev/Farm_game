@@ -6,14 +6,14 @@ import time
 
 from config import TOKEN, HARVEST, PRICE_UPGRADE_DISEASE_RESISTANCE, PRICE_UPGRADE_TIME_WATERING, \
                     PRICE_BUY_BEDS, ID_CHANNEL_MARKET, ID_CHANNEL_NEWS, ID_ITEM_FOR_SELL, ID_CHAT_REPORTS, \
-                    ADMINS
+                    ADMINS, EVENTS
 from database import Database
 import keyboard as kb
 import game_logic as gl
 import create_table
 import send_logs as sl
 
-
+TOKEN = "8055869737:AAEsL52Eh_jEsOSHbzQ3RjWNAJByfgY_Gd0"
 bot = telebot.TeleBot(TOKEN)
 
 create_table.create_database()
@@ -1158,7 +1158,7 @@ def buy_new_bed(call):
     if user['money'] >= price:
         text = f"🆕 Отличная покупка! Новая грядка добавлена."
         db.edit_farm(id)
-        db.set_bed(id, user_farm['amount_beds']+1)
+        db.set_bed(id, user_farm['amount_beds']+1, gl.end_time(8))
         db.edit_money(id, price)
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
         print(f"{gl.get_now_time()} - {id} Купил {user_farm['amount_beds']+1}-ую грядку")
@@ -3852,6 +3852,26 @@ def get_logs(call):
     if id in ADMINS:
         sl.send_logs_today()
     return
+
+
+
+# Ивенты
+@bot.callback_query_handler(lambda call: call.data == 'events')
+def events(call):
+    id = call.from_user.id
+    if id in ADMINS:
+        db = Database()
+        event = db.get_event()
+        if event == None:
+            bot.send_message(id, "Нет активных ивентов!", reply_markup=kb.list_event_kb)
+            db.close()
+            return
+        name_event = EVENTS[event['id_event']]
+        name_planted = HARVEST[event['id_planted']]
+        text = f"Есть активный ивент: {name_event}\n"\
+                f"Закончится: {event['time_end_event']}\n"\
+                f"Что необходимо вырастить: {name_planted} \n"\
+                f"Общая цель: {event['goal_complete']}/{event['all_goal']}"
 
 
 
