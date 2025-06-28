@@ -360,7 +360,7 @@ start_kb = types.InlineKeyboardMarkup()
 start_kb.add(types.InlineKeyboardButton('👣 Пройти обучение', callback_data='pass_training'))
 
 farm_kb = types.InlineKeyboardMarkup()
-farm_kb.add(types.InlineKeyboardButton('🦶 Войти на грядку', callback_data='bed_training'))
+farm_kb.add(types.InlineKeyboardButton('🦶 Войти на грядку', callback_data='training_bed'))
 
 in_shop_kb = types.InlineKeyboardMarkup()
 in_shop_kb.add(types.InlineKeyboardButton('🏪 В магазин', callback_data='in_shop'))

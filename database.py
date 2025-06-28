@@ -970,7 +970,13 @@ class Database:
         self._cursor.execute('SELECT * FROM events')
         return self._cursor.fetchall()
     
-    def set_event(self, id_event, id_planted, start_time_event, end_time_event, all_goal=0):
+    def get_event_id(self, id_event):
+        self._id_event = id_event
+
+        self._cursor.execute("SELECT * FROM events WHERE id_event = ?", (self._id_event, ))
+        return self._cursor.fetchone()
+    
+    def set_event(self, id_event, id_planted, start_time_event, end_time_event, all_goal):
         self._id_event = id_event
         self._id_planted = id_planted
         self._start_time_event = start_time_event
@@ -979,8 +985,8 @@ class Database:
 
         self._cursor.execute(
             '''
-            INSERT INTO events (id_event, goal_complete, id_planted, all_goal, start_time_event, end_time_event)
-            VALUES (?, 0, ?, ?, ?, ?)
+            INSERT INTO events (id_event, goal_complete, id_planted, all_goal, start_time_event, end_time_event, active)
+            VALUES (?, 0, ?, ?, ?, ?, 0)
             ''',
             (self._id_event, self._id_planted, self._all_goal, self._start_time_event, self._end_time_event,)
         )
@@ -993,7 +999,7 @@ class Database:
             '''
             DELETE FROM events
             WHERE id_event = ?
-            '''
+            ''',
             (self._id_event, )
         )
         self._db.commit()
@@ -1004,12 +1010,95 @@ class Database:
         self._cursor.execute(
             '''
             UPDATE events
-            SET active = 1,
+            SET active = 1
             WHERE id_event = ?
             ''',
             (self._id_event, )
         )
         self._db.commit()
 
+    def add_get_harvest_week(self, id, quantity):
+        self._id = id
+        self._quantity = quantity
+
+        self._cursor.execute(
+            '''
+            UPDATE user
+            SET get_harvest_week = get_harvest_week + ?
+            WHERE id = ?
+            ''',
+            (self._quantity, self._id, )
+        )
+        self._db.commit()
+
+    def update_farm_race(self, id_seed):
+        self._id_seed = id_seed
+
+        self._cursor.execute(
+            '''
+            UPDATE events
+            SET id_planted = ?
+            WHERE id_event = 2
+            ''',
+            (self._id_planted, )
+        )
+        self._cursor.execute(
+            '''
+            UPDATE user
+            SET get_harvest_week = 0
+            '''
+        )
+        self._db.commit()
+
+    def add_all_goal_complete(self, id, quantity):
+        self._id = id
+        self._quantity = quantity
+
+        self._cursor.execute(
+            '''
+            UPDATE events
+            SET goal_complete = goal_complete + ?
+            ''',
+            (self._quantity, )
+        )
+        self._cursor.execute(
+            '''
+            UPDATE user
+            SET complete_all_goal = complete_all_goal + ?
+            WHERE id = ?
+            ''',
+            (self._quantity, self._id, )
+        )
+        self._db.commit()
     
-    
+    def reset_all_goal_user(self):
+        self._cursor.execute(
+            '''
+            UPDATE user
+            SET complete_all_goal = 0
+            '''
+        )
+        self._db.commit()
+
+    def get_top_3_week(self):
+        self._cursor.execute(
+            '''
+            SELECT id, get_harvest_week FROM user ORDER BY get_harvest_week DESC LIMIT 3
+            '''
+        )
+        self._cursor.fetchall()
+
+    def get_all_goal_user(self):
+        self._cursor.execute(
+            '''
+            SELECT id, complete_all_goal
+            FROM user 
+            WHERE complete_all_goal != 0
+            ORDER BY complete_all_goal DESC
+            '''
+        )
+        rows = self._cursor.fetchall()
+        top_1_3 = rows[:3]      # Первые 3 записи (1-3 места)
+        top_4_10 = rows[3:10]   # Следующие 7 записей (4-10 места)
+        others = rows[10:]      # Все остальные (11+ места)
+        return [top_1_3, top_4_10, others]

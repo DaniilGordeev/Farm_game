@@ -243,3 +243,6 @@ def end_time_event(time_start, growth_hours = 0):
     time_start = datetime.strptime(time_start, "%Y-%m-%d %H:%M:%S")
     time_end = time_start + timedelta(hours=growth_hours)
     return time_end.strftime("%Y-%m-%d %H:%M:%S")
+
+def random_harvest():
+    return random.randint(1, 6)

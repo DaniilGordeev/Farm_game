@@ -105,7 +105,8 @@ def create_database(database_name='users.db'):
         gold_money INTEGER, 
         max_product INTEGER, 
         message_id_bot INTEGER, 
-        buster_x10_time_all INTEGER
+        buster_x10_time_all INTEGER,
+        get_harvest_week INTEGER
     );
                          
     -- Таблица: statistics
@@ -150,7 +151,7 @@ def create_database(database_name='users.db'):
         (27, 'Бустер "Отказ от воды"', None, None, None, 'бустер'),
         (28, 'Бустер "Удвоенный урожай"', None, None, None, 'бустер'),
         (29, 'Бустер "Отсутствие болезней"', None, None, None, 'бустер'),
-        (30, 'Случайное семечко', 425, None, None, 'семена')
+        (30, 'Случайное семечко', 200, None, None, 'семена')
     ]
 
     cursor.executemany("""
@@ -252,7 +253,9 @@ def update_database_schema(database_name: str = 'users.db'):
             ('max_product', 'INTEGER'), 
             ('message_id_bot', 'INTEGER'), 
             ('buster_x10_time_all', 'INTEGER'),
-            ('daily_bonus', 'INTEGER DEFAULT 0')
+            ('daily_bonus', 'INTEGER DEFAULT 0'),
+            ('get_harvest_week', 'INTEGER DEFAULT 0'),
+            ('complete_all_goal', 'INTEGER DEFAULT 0')
         ],
         'statistics': {
             ('new_users_day', 'INTEGER DEFAULT 0'),
@@ -265,7 +268,7 @@ def update_database_schema(database_name: str = 'users.db'):
             ('all_goal', 'INTEGER'),
             ('start_time_event', 'TEXT'),
             ('end_time_event', 'TEXT'),
-            ('active', 'INTEGER')
+            ('active', 'INTEGER DEFAULT 0')
         }
     }
 

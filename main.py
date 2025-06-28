@@ -82,7 +82,7 @@ def pass_training(call):
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.farm_kb, parse_mode='Markdown')
     db.close()
 
-@bot.callback_query_handler(lambda call: call.data == 'bed_training')
+@bot.callback_query_handler(lambda call: call.data == 'training_bed')
 def bed_training(call):
     id = call.from_user.id
     text =  "🪱 *[ Твоя первая грядка ]* 🪱\n\n"\
@@ -588,10 +588,10 @@ def buy_seeds(call):
     id = call.from_user.id
     name_seed = call.data.split('_', maxsplit=2)[2]
     db = Database()
-    event = db.get_event()
+    event = db.get_event_id(1)
 
     if name_seed == 'random':
-        if event['id_event'] != 1:
+        if event == None or event['active'] == 0:
             text = f"Ты не можешь купить эти семечки\n"\
                     f"Они доступны, только при ивенте «Случайное семечко»"
             bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_seeds_kb)
@@ -599,7 +599,7 @@ def buy_seeds(call):
             return
         
     id_seed = SEEDS[name_seed]
-    time_seed = TIME_SEEDS[id_seed]
+    time_seed = TIME_SEEDS[id_seed][0]
     db.edit_locate(id, call.data)
     user = db.get_me(id)
     item = db.get_items_id(id_seed)
@@ -629,12 +629,12 @@ def quantity_buy(call):
 
     seed = user['locate'].split('_', maxsplit=2)[2]
     id_seed = SEEDS[seed]
-    time_seed = TIME_SEEDS[id_seed]
+    time_seed = TIME_SEEDS[id_seed][0]
     item = db.get_items_id(id_seed)
     
     if user['money'] >= item['price']:
         db.set_inventory(id, int(item['item_id']), quantity)
-        db.edit_money(id, int(item['price']))
+        db.edit_money(id, int(item['price'])*quantity)
         user = db.get_me(id)
         text = f"✅ Куплено: **{item['name']}** ({quantity} шт.)"
         text_for_message = f"〰️〰️〰️〰️〰️\n"\
@@ -980,20 +980,21 @@ def beds_2(call):
     bot.edit_message_reply_markup(id, call.message.message_id, reply_markup=kb.make_beds(user_farm['amount_beds'])[1])
     db.close()
 
-@bot.callback_query_handler(lambda call: call.data == 'bed_1')
-def bed_1(call):
+@bot.callback_query_handler(lambda call: call.data.startswith('bed_'))
+def bed(call):
     id = call.from_user.id
+    id_bed = int(call.data.split('_')[1])
     db = Database()
-    db.edit_locate(id, 'bed_1')
-    user_bed = db.get_bed(id, 1)
+    db.edit_locate(id, call.data)
+    user_bed = db.get_bed(id, id_bed)
     user_tool = db.get_rake(id)
     if user_bed['state'] == 3:
         if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
             user_bed['state'] = 1
         else:
-            db.set_seeds_bed(id, 1, 0, 0, 0, 0, 0)
+            db.set_seeds_bed(id, id_bed, 0, 0, 0, 0, 0)
 
-    text = f"⚔️ [Грядка №1] ⚔️\n"\
+    text = f"⚔️ [Грядка №{id_bed}] ⚔️\n"\
             f"▸ 🎯 Лунок: {user_bed['holes']}\n"
     
     if user_tool != None: 
@@ -1009,7 +1010,7 @@ def bed_1(call):
     if user_bed['state'] == 1:
         time_left = gl.calculate_end_time(user_bed['time_end'])
         if time_left == True:
-            db.set_state_bed(id, 1, 2)
+            db.set_state_bed(id, id_bed, 2)
             text += f"✅ Состояние: Можно собирать\n"\
                     f"🌱 Что растет: {user_bed['name']}\n"\
                     f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
@@ -1034,491 +1035,6 @@ def bed_1(call):
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
     db.close()
 
-@bot.callback_query_handler(lambda call: call.data == 'bed_2')
-def bed_2(call):
-    id = call.from_user.id
-    db = Database()
-    db.edit_locate(id, 'bed_2')
-    user_bed = db.get_bed(id, 2)
-    user_tool = db.get_rake(id)
-    if user_bed['state'] == 3:
-        if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
-            user_bed['state'] = 1
-        else:
-            db.set_seeds_bed(id, 2, 0, 0, 0, 0, 0)
-
-    text = f"⚔️ [Грядка №2] ⚔️\n"\
-            f"▸ 🎯 Лунок: {user_bed['holes']}\n"
-    
-    if user_tool != None: 
-        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
-    else:
-        text += f"🛠️ Грабли: ❌ Нет\n"
-
-    if user_bed['state'] == 0:
-        text += f"🌱 Состояние: Ничего не посажено\n"\
-                f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-
-    if user_bed['state'] == 1:
-        time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left == True:
-            db.set_state_bed(id, 2, 2)
-            text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_2_kb)
-        else:
-            text += f"🌱 Состояние: Посажено\n" \
-                    f"🌿 Что растет: {user_bed['name']}\n" \
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_1(time_left))
-            
-    if user_bed['state'] == 2:
-        text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_2_kb)
-    
-    if user_bed['state'] == 3:
-        text += f"💀 Состояние: Засохло!\n" \
-                f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'bed_3')
-def bed_3(call):
-    id = call.from_user.id
-    db = Database()
-    db.edit_locate(id, 'bed_3')
-    user_bed = db.get_bed(id, 3)
-    user_tool = db.get_rake(id)
-    if user_bed['state'] == 3:
-        if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
-            user_bed['state'] = 1
-        else:
-            db.set_seeds_bed(id, 3, 0, 0, 0, 0, 0)
-
-    text = f"⚔️ [Грядка №3] ⚔️\n"\
-            f"▸ 🎯 Лунок: {user_bed['holes']}\n"
-    
-    if user_tool != None: 
-        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
-    else:
-        text += f"🛠️ Грабли: ❌ Нет\n"
-
-    if user_bed['state'] == 0:
-        text += f"🌱 Состояние: Ничего не посажено\n"\
-                f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-
-    if user_bed['state'] == 1:
-        time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left == True:
-            db.set_state_bed(id, 3, 2)
-            text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_2_kb)
-        else:
-            text += f"🌱 Состояние: Посажено\n" \
-                    f"🌿 Что растет: {user_bed['name']}\n" \
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_1(time_left))
-            
-    if user_bed['state'] == 2:
-        text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_2_kb)
-
-    if user_bed['state'] == 3:
-        text += f"💀 Состояние: Засохло!\n" \
-                f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'bed_4')
-def bed_4(call):
-    id = call.from_user.id
-    db = Database()
-    db.edit_locate(id, 'bed_4')
-    user_bed = db.get_bed(id, 4)
-    user_tool = db.get_rake(id)
-    if user_bed['state'] == 3:
-        if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
-            user_bed['state'] = 1
-        else:
-            db.set_seeds_bed(id, 4, 0, 0, 0, 0, 0)
-
-    text = f"⚔️ [Грядка №4] ⚔️\n"\
-            f"▸ 🎯 Лунок: {user_bed['holes']}\n"
-    
-    if user_tool != None: 
-        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
-    else:
-        text += f"🛠️ Грабли: ❌ Нет\n"
-
-    if user_bed['state'] == 0:
-        text += f"🌱 Состояние: Ничего не посажено\n"\
-                f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-
-    if user_bed['state'] == 1:
-        time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left == True:
-            db.set_state_bed(id, 4, 2)
-            text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_2_kb)
-        else:
-            text += f"🌱 Состояние: Посажено\n" \
-                    f"🌿 Что растет: {user_bed['name']}\n" \
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_1(time_left))
-            
-    if user_bed['state'] == 2:
-        text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_2_kb)
-
-    if user_bed['state'] == 3:
-        text += f"💀 Состояние: Засохло!\n" \
-                f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'bed_5')
-def bed_5(call):
-    id = call.from_user.id
-    db = Database()
-    db.edit_locate(id, 'bed_5')
-    user_bed = db.get_bed(id, 5)
-    user_tool = db.get_rake(id)
-    if user_bed['state'] == 3:
-        if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
-            user_bed['state'] = 1
-        else:
-            db.set_seeds_bed(id, 5, 0, 0, 0, 0, 0)
-
-    text = f"⚔️ [Грядка №5] ⚔️\n"\
-            f"▸ 🎯 Лунок: {user_bed['holes']}\n"
-    
-    if user_tool != None: 
-        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
-    else:
-        text += f"🛠️ Грабли: ❌ Нет\n"
-
-    if user_bed['state'] == 0:
-        text += f"🌱 Состояние: Ничего не посажено\n"\
-                f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-
-    if user_bed['state'] == 1:
-        time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left == True:
-            db.set_state_bed(id, 5, 2)
-            text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_2_kb)
-        else:
-            text += f"🌱 Состояние: Посажено\n" \
-                    f"🌿 Что растет: {user_bed['name']}\n" \
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_1(time_left))
-            
-    if user_bed['state'] == 2:
-        text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_2_kb)
-
-    if user_bed['state'] == 3:
-        text += f"💀 Состояние: Засохло!\n" \
-                f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'bed_6')
-def bed_6(call):
-    id = call.from_user.id
-    db = Database()
-    db.edit_locate(id, 'bed_6')
-    user_bed = db.get_bed(id, 6)
-    user_tool = db.get_rake(id)
-    if user_bed['state'] == 3:
-        if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
-            user_bed['state'] = 1
-        else:
-            db.set_seeds_bed(id, 6, 0, 0, 0, 0, 0)
-
-    text = f"⚔️ [Грядка №6] ⚔️\n"\
-            f"▸ 🎯 Лунок: {user_bed['holes']}\n"
-    
-    if user_tool != None: 
-        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
-    else:
-        text += f"🛠️ Грабли: ❌ Нет\n"
-
-    if user_bed['state'] == 0:
-        text += f"🌱 Состояние: Ничего не посажено\n"\
-                f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-
-    if user_bed['state'] == 1:
-        time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left == True:
-            db.set_state_bed(id, 6, 2)
-            text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_2_kb)
-        else:
-            text += f"🌱 Состояние: Посажено\n" \
-                    f"🌿 Что растет: {user_bed['name']}\n" \
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_1(time_left))
-            
-    if user_bed['state'] == 2:
-        text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_2_kb)
-
-    if user_bed['state'] == 3:
-        text += f"💀 Состояние: Засохло!\n" \
-                f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'bed_7')
-def bed_7(call):
-    id = call.from_user.id
-    db = Database()
-    db.edit_locate(id, 'bed_7')
-    user_bed = db.get_bed(id, 7)
-    user_tool = db.get_rake(id)
-    if user_bed['state'] == 3:
-        if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
-            user_bed['state'] = 1
-        else:
-            db.set_seeds_bed(id, 7, 0, 0, 0, 0, 0)
-
-    text = f"⚔️ [Грядка №7] ⚔️\n"\
-            f"▸ 🎯 Лунок: {user_bed['holes']}\n"
-    
-    if user_tool != None: 
-        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
-    else:
-        text += f"🛠️ Грабли: ❌ Нет\n"
-
-    if user_bed['state'] == 0:
-        text += f"🌱 Состояние: Ничего не посажено\n"\
-                f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-
-    if user_bed['state'] == 1:
-        time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left == True:
-            db.set_state_bed(id, 7, 2)
-            text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_2_kb)
-        else:
-            text += f"🌱 Состояние: Посажено\n" \
-                    f"🌿 Что растет: {user_bed['name']}\n" \
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_1(time_left))
-    if user_bed['state'] == 2:
-        text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_2_kb)
-
-    if user_bed['state'] == 3:
-        text += f"💀 Состояние: Засохло!\n" \
-                f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'bed_8')
-def bed_8(call):
-    id = call.from_user.id
-    db = Database()
-    db.edit_locate(id, 'bed_8')
-    user_bed = db.get_bed(id, 8)
-    user_tool = db.get_rake(id)
-    if user_bed['state'] == 3:
-        if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
-            user_bed['state'] = 1
-        else:
-            db.set_seeds_bed(id, 8, 0, 0, 0, 0, 0)
-    
-    text = f"⚔️ [Грядка №8] ⚔️\n"\
-            f"▸ 🎯 Лунок: {user_bed['holes']}\n"
-    
-    if user_tool != None: 
-        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
-    else:
-        text += f"🛠️ Грабли: ❌ Нет\n"
-
-    if user_bed['state'] == 0:
-        text += f"🌱 Состояние: Ничего не посажено\n"\
-                f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-
-    if user_bed['state'] == 1:
-        time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left == True:
-            db.set_state_bed(id, 8, 2)
-            text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_2_kb)
-        else:
-            text += f"🌱 Состояние: Посажено\n" \
-                    f"🌿 Что растет: {user_bed['name']}\n" \
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_1(time_left))
-    if user_bed['state'] == 2:
-        text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_2_kb)
-
-    if user_bed['state'] == 3:
-        text += f"💀 Состояние: Засохло!\n" \
-                f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'bed_9')
-def bed_9(call):
-    id = call.from_user.id
-    db = Database()
-    db.edit_locate(id, 'bed_9')
-    user_bed = db.get_bed(id, 9)
-    user_tool = db.get_rake(id)
-    if user_bed['state'] == 3:
-        if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
-            user_bed['state'] = 1
-        else:
-            db.set_seeds_bed(id, 9, 0, 0, 0, 0, 0)
-
-    text = f"⚔️ [Грядка №9] ⚔️\n"\
-            f"▸ 🎯 Лунок: {user_bed['holes']}\n"
-    
-    if user_tool != None: 
-        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
-    else:
-        text += f"🛠️ Грабли: ❌ Нет\n"
-
-    if user_bed['state'] == 0:
-        text += f"🌱 Состояние: Ничего не посажено\n"\
-                f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-
-    if user_bed['state'] == 1:
-        time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left == True:
-            db.set_state_bed(id, 9, 2)
-            text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_2_kb)
-        else:
-            text += f"🌱 Состояние: Посажено\n" \
-                    f"🌿 Что растет: {user_bed['name']}\n" \
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_1(time_left))
-            
-    if user_bed['state'] == 2:
-        text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_2_kb)
-
-    if user_bed['state'] == 3:
-        text += f"💀 Состояние: Засохло!\n" \
-                f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'bed_10')
-def bed_10(call):
-    id = call.from_user.id
-    db = Database()
-    db.edit_locate(id, 'bed_10')
-    user_bed = db.get_bed(id, 10)
-    user_tool = db.get_rake(id)
-    if user_bed['state'] == 3:
-        if gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours']) != 0:
-            user_bed['state'] = 1
-        else:
-            db.set_seeds_bed(id, 10, 0, 0, 0, 0, 0)
-
-    text = f"⚔️ [Грядка №10] ⚔️\n"\
-            f"▸ 🎯 Лунок: {user_bed['holes']}\n"
-    
-    if user_tool != None: 
-        text += f"🛠️ Грабли: {user_tool['name']} (🛡️ {user_tool['strength']})\n"
-    else:
-        text += f"🛠️ Грабли: ❌ Нет\n"
-
-    if user_bed['state'] == 0:
-        text += f"🌱 Состояние: Ничего не посажено\n"\
-                f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-
-    if user_bed['state'] == 1:
-        time_left = gl.calculate_end_time(user_bed['time_end'])
-        if time_left == True:
-            db.set_state_bed(id, 10, 2)
-            text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_2_kb)
-        else:
-            text += f"🌱 Состояние: Посажено\n" \
-                    f"🌿 Что растет: {user_bed['name']}\n" \
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-            bot.edit_message_text(text, id, call.message.message_id, 
-                              reply_markup=kb.bed_state_1(time_left))
-            
-    if user_bed['state'] == 2:
-        text += f"✅ Состояние: Можно собирать\n"\
-                    f"🌱 Что растет: {user_bed['name']}\n"\
-                    f"💧 Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_2_kb)
-    
-    if user_bed['state'] == 3:
-        text += f"💀 Состояние: Засохло!\n" \
-                f"⚠️ Влажность почвы: {gl.calculate_precent_water(user_bed['time_end_watering'], user_bed['watering_hours'])}%"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.bed_state_0_kb)
-    db.close()
-
-
 @bot.callback_query_handler(lambda call: call.data == 'set_seeds')
 def set_seeds(call):
     id = call.from_user.id
@@ -1538,352 +1054,68 @@ def set_seeds(call):
     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.select_set_seeds(user_inventory, user_locate))
     db.close()
     
-@bot.callback_query_handler(lambda call: call.data == 'set_seeds_1')
-def set_seeds_1(call):
+@bot.callback_query_handler(lambda call: call.data.startswith('set_seeds_'))
+def set_seeds_id(call):
     id = call.from_user.id 
+    id_seed = int(call.data.split('_')[2])
     db = Database()
     user = db.get_me(id)
+    
     if not user['locate'].startswith('bed_'):
         text = f"❌ Ты не находишься на грядке\n"\
                 f"Используй команду /farm"
         bot.send_message(id, text)
         return
+    
     user_farm = db.get_farm(id)
     user_locate = int(db.get_me(id)['locate'][4:])
-
-    
     user_bed = db.get_bed(id, user_locate)
-    user_inventory = db.get_item_invetory(id, 1)
-    end_time = gl.end_time(growth_minutes=10)
+    user_inventory = db.get_item_invetory(id, id_seed)
+    time_seed = TIME_SEEDS[id_seed][1]
+    end_time = gl.end_time(growth_minutes=time_seed)
+    event = db.get_event_id(1)
+    
+    if id_seed == 30:
+        if event == None or event['active'] == 0:
+            text = f"Ты не можешь посадить данное семечко\n"\
+                    f"Его можно сожать только при ивенте: «Случайное семечко»"
+            bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
+            db.close()
+            return
 
     if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=1)
+        end_time = gl.end_time(growth_minutes=round(time_seed/10))
 
     if user_inventory['quantity'] >= user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 1, end_time, 1, user_bed['holes'])
+        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm['buster'] != 29:
+            db.set_seeds_bed(id, user_locate, 1, id_seed, end_time, 1, user_bed['holes'])
         else:
-            db.set_seeds_bed(id, user_locate, 1, 1, end_time, 0, user_bed['holes'])
+            db.set_seeds_bed(id, user_locate, 1, id_seed, end_time, 0, user_bed['holes'])
 
         if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 1, end_time, 0, user_bed['holes'])
+            db.set_seeds_bed(id, user_locate, 1, id_seed, end_time, 0, user_bed['holes'])
             db.used_buster(id, 0)
 
         if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
             db.set_state_bed(id, user_locate, 3)
 
-        db.remove_item_id(id, 1, user_bed['holes'])
+        db.remove_item_id(id, id_seed, user_bed['holes'])
         text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     elif 0 < user_inventory['quantity'] < user_bed['holes']:
         if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 1, end_time, 1, user_inventory['quantity'])
+            db.set_seeds_bed(id, user_locate, 1, id_seed, end_time, 1, user_inventory['quantity'])
         else:
-            db.set_seeds_bed(id, user_locate, 1, 1, end_time, 0, user_inventory['quantity'])
+            db.set_seeds_bed(id, user_locate, 1, id_seed, end_time, 0, user_inventory['quantity'])
 
         if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 1, end_time, 0, user_inventory['quantity'])
+            db.set_seeds_bed(id, user_locate, 1, id_seed, end_time, 0, user_inventory['quantity'])
             db.used_buster(id, 0)
 
         if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
             db.set_state_bed(id, user_locate, 3)
 
-        db.remove_item_id(id, 1, user_inventory['quantity'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    else:
-        text = f"❌ Тебе не хватает семян!\n" \
-                f"Нужно докупить или выбрать другую культуру"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'set_seeds_2')
-def set_seeds_2(call):
-    id = call.from_user.id 
-    db = Database()
-    user = db.get_me(id)
-    if not user['locate'].startswith('bed_'):
-        text = f"❌ Ты не находишься на грядке\n"\
-                f"Используй команду /farm"
-        bot.send_message(id, text)
-        return
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    
-    user_bed = db.get_bed(id, user_locate)
-    user_inventory = db.get_item_invetory(id, 2)
-    end_time = gl.end_time(growth_minutes=20)
-
-    if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=2)
-
-    if user_inventory['quantity'] >= user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 2, end_time, 1, user_bed['holes'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 2, end_time, 0, user_bed['holes'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 2, end_time, 0, user_bed['holes'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 2, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    elif 0 < user_inventory['quantity'] < user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 2, end_time, 1, user_inventory['quantity'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 2, end_time, 0, user_inventory['quantity'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 2, end_time, 0, user_inventory['quantity'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 2, user_inventory['quantity'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    else:
-        text = f"❌ Тебе не хватает семян!\n" \
-                f"Нужно докупить или выбрать другую культуру"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'set_seeds_3')
-def set_seeds_3(call):
-    id = call.from_user.id 
-    db = Database()
-    user = db.get_me(id)
-    if not user['locate'].startswith('bed_'):
-        text = f"❌ Ты не находишься на грядке\n"\
-                f"Используй команду /farm"
-        bot.send_message(id, text)
-        return
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    
-    user_bed = db.get_bed(id, user_locate)
-    user_inventory = db.get_item_invetory(id, 3)
-    end_time = gl.end_time(growth_minutes=30)
-
-    if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=3)
-
-    if user_inventory['quantity'] >= user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 3, end_time, 1, user_bed['holes'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 3, end_time, 0, user_bed['holes'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 3, end_time, 0, user_bed['holes'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 3, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    elif 0 < user_inventory['quantity'] < user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 3, end_time, 1, user_inventory['quantity'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 3, end_time, 0, user_inventory['quantity'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 3, end_time, 0, user_inventory['quantity'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 3, user_inventory['quantity'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    else:
-        text = f"❌ Тебе не хватает семян!\n" \
-                f"Нужно докупить или выбрать другую культуру"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'set_seeds_4')
-def set_seeds_4(call):
-    id = call.from_user.id 
-    db = Database()
-    user = db.get_me(id)
-    if not user['locate'].startswith('bed_'):
-        text = f"❌ Ты не находишься на грядке\n"\
-                f"Используй команду /farm"
-        bot.send_message(id, text)
-        return
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    
-    user_bed = db.get_bed(id, user_locate)
-    user_inventory = db.get_item_invetory(id, 4)
-    end_time = gl.end_time(growth_minutes=45)
-
-    if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=5)
-
-    if user_inventory['quantity'] >= user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 4, end_time, 1, user_bed['holes'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 4, end_time, 0, user_bed['holes'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 4, end_time, 0, user_bed['holes'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 4, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    elif 0 < user_inventory['quantity'] < user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 4, end_time, 1, user_inventory['quantity'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 4, end_time, 0, user_inventory['quantity'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 4, end_time, 0, user_inventory['quantity'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 4, user_inventory['quantity'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    else:
-        text = f"❌ Тебе не хватает семян!\n" \
-                f"Нужно докупить или выбрать другую культуру"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'set_seeds_5')
-def set_seeds_5(call):
-    id = call.from_user.id 
-    db = Database()
-    user = db.get_me(id)
-    if not user['locate'].startswith('bed_'):
-        text = f"❌ Ты не находишься на грядке\n"\
-                f"Используй команду /farm"
-        bot.send_message(id, text)
-        return
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    
-    user_bed = db.get_bed(id, user_locate)
-    user_inventory = db.get_item_invetory(id, 5)
-    end_time = gl.end_time(growth_hours=4)
-
-    if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=24)
-
-    if user_inventory['quantity'] >= user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 5, end_time, 1, user_bed['holes'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 5, end_time, 0, user_bed['holes'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 5, end_time, 0, user_bed['holes'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 5, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    elif 0 < user_inventory['quantity'] < user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 5, end_time, 1, user_inventory['quantity'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 5, end_time, 0, user_inventory['quantity'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 5, end_time, 0, user_inventory['quantity'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 5, user_inventory['quantity'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    else:
-        text = f"❌ Тебе не хватает семян!\n" \
-                f"Нужно докупить или выбрать другую культуру"
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_select_set_seeds)
-    db.close()
-
-@bot.callback_query_handler(lambda call: call.data == 'set_seeds_6')
-def set_seeds_6(call):
-    id = call.from_user.id 
-    db = Database()
-    user = db.get_me(id)
-    if not user['locate'].startswith('bed_'):
-        text = f"❌ Ты не находишься на грядке\n"\
-                f"Используй команду /farm"
-        bot.send_message(id, text)
-        return
-    user_farm = db.get_farm(id)
-    user_locate = int(db.get_me(id)['locate'][4:])
-
-    
-    user_bed = db.get_bed(id, user_locate)
-    user_inventory = db.get_item_invetory(id, 6)
-    end_time = gl.end_time(growth_hours=2, growth_minutes=30)
-
-    if gl.has_time_passed(user['buster_x10_time_all']):
-        end_time = gl.end_time(growth_minutes=15)
-
-    if user_inventory['quantity'] >= user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 6, end_time, 1, user_bed['holes'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 6, end_time, 0, user_bed['holes'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 6, end_time, 0, user_bed['holes'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 6, user_bed['holes'])
-        text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_bed['holes']}!\n" 
-        bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
-    elif 0 < user_inventory['quantity'] < user_bed['holes']:
-        if gl.random_chance_resistance(user_bed['chance_resistance']) and user_farm != 29:
-            db.set_seeds_bed(id, user_locate, 1, 6, end_time, 1, user_inventory['quantity'])
-        else:
-            db.set_seeds_bed(id, user_locate, 1, 6, end_time, 0, user_inventory['quantity'])
-
-        if user_farm['buster'] == 29:
-            db.set_seeds_bed(id, user_locate, 1, 6, end_time, 0, user_inventory['quantity'])
-            db.used_buster(id, 0)
-
-        if gl.compare_times(str(user_bed['time_end_watering']), str(db.get_bed(id, user_locate)['time_end'])):
-            db.set_state_bed(id, user_locate, 3)
-
-        db.remove_item_id(id, 6, user_inventory['quantity'])
+        db.remove_item_id(id, id_seed, user_inventory['quantity'])
         text = f"🪴 {user_inventory['name']} успешно посажены в количестве {user_inventory['quantity']}!\n" 
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_beds)
     else:
@@ -1899,6 +1131,8 @@ def get_harvest(call):
     user_farm = db.get_farm(id)
     user_tool = db.get_tool_rake(id)
     user_locate = db.get_me(id)['locate']
+    event_farm_race = db.get_event_id(2)
+    event_all_goal = db.get_event_id(3)
 
     if not user_locate.startswith('bed_'):
         text = f"❌ Ты не находишься на грядке\n"\
@@ -1912,15 +1146,19 @@ def get_harvest(call):
         bot.send_message(id, '❌ Ты уже собрал урожай!')
         return
     
-    item_harvest = db.get_items_id(HARVEST[user_bed['id_planted']])
+    if user_bed['id_planted'] == 30:
+        item_harvest = db.get_items_id(HARVEST[gl.random_harvest()])
+    else:
+        item_harvest = db.get_items_id(HARVEST[user_bed['id_planted']])
+
     resource = gl.random_resource()
     tasks = db.get_tasks(id)
-
 
     if user_tool == None:
         text = f"🚫 Ошибка: Нет граблей!\n" \
                 f"Чтобы собрать урожай, тебе нужны грабли"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
+        db.close()
         return
     else:
         user_tool = user_tool['tool_id']
@@ -1929,6 +1167,7 @@ def get_harvest(call):
             text = f"💀 Почва заболела - урожай погиб!\n" \
                     f"😢 Очень жаль, но ничего не выросло..."
             bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
+            db.close()
             return
         else:
             if user_farm['buster'] == 28:
@@ -1936,6 +1175,7 @@ def get_harvest(call):
                 db.used_buster(id, 0)
             else:
                 buster = 1
+
             quantity = 0
             if user_tool == 7:
                 quantity = user_bed['quantity']
@@ -1976,12 +1216,21 @@ def get_harvest(call):
                     text = f"✨ Урожай! ✨\nСобрано {quantity*buster} {item_harvest['name']}"
                     db.set_inventory(id, item_harvest['item_id'], quantity*buster)
                     bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_get_harvest(user_locate))
+
             if resource != None:
                 resource_info = db.get_items_id(resource)
                 text_2 = f"✨ Удача! При сборе урожая ты нашёл:\n" \
                         f"1 {resource_info['name']} (редкий ресурс!)"
                 bot.answer_callback_query(call.id, text_2)
                 db.set_inventory(id, resource)
+
+            if event_farm_race != None:
+                if item_harvest['item_id'] == HARVEST[event_farm_race['id_planted']]:
+                    db.add_get_harvest_week(id, quantity)
+
+            if event_all_goal != None and event_all_goal['active'] == 1:
+                if item_harvest['item_id'] == HARVEST[event_all_goal['id_planted']]:
+                    db.add_all_goal_complete(id, quantity)
 
             db.edit_tool(id, user_tool)
 
@@ -3370,7 +2619,8 @@ def commands_admin(call):
                 f"/send_message_bot [текст]\n"\
                 f"/get_info_user [ID игрока] [Тип информации]\n"\
                 f"/get_logs - получение логов за сегодня\n"\
-                f"/start_event [ID ивента] [Время старта] [На какое время ивент] [Общая цель (если необходима)]"
+                f"/start_event [ID ивента] [ID посадки] [Время старта (YYYY-MM-DD HH-MM-SS)] " \
+                                "[На какое время ивент (в часах)] [Общая цель (0 если не нужна)]"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_admin_main_kb)
     return
 
@@ -3657,18 +2907,24 @@ def events(call):
     id = call.from_user.id
     if id in ADMINS:
         db = Database()
-        event = db.get_event()
-        if event == None:
+        events = db.get_event()
+        if events == []:
             bot.edit_message_text("Нет активных ивентов!", id, call.message.message_id, reply_markup=kb.back_admin_main_kb)
             db.close()
             return
-        name_event = EVENTS[event['id_event']]
-        name_planted = HARVEST[event['id_planted']]
-        text = f"Есть активный ивент: {name_event}\n"\
-                f"Закончится: {event['time_end_event']}\n"\
-                f"Что необходимо вырастить: {name_planted} \n"\
-                f"Общая цель: {event['goal_complete']}/{event['all_goal']}"
+        text = ""
+        for event in events:
+            name_event = EVENTS[event['id_event']]
+            if event['active'] == 1:
+                text += f"Активный ивент: {name_event}\n"
+            else:
+                text += f"Запланированный ивент: {name_event}\n"
+            text += f"Начало: {event['start_time_event']}\n"\
+                    f"Конец: {event['end_time_event']}\n"\
+                    f"План посадки: {event['id_planted']}\n"\
+                    f"Общая цель: {event['goal_complete']}/{event['all_goal']}\n\n"
         bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_admin_main_kb)
+        db.close()
     return 
 
 @bot.message_handler(commands=['start_event'])
@@ -3679,11 +2935,10 @@ def start_event(message):
     id = message.from_user.id 
     if id in ADMINS:
         db = Database()
-        event = db.get_event()
         args = message.text.split()[1:]
         time_start = args[2] + ' ' + args[3]
         if len(args) < 6:
-            bot.send_message(id, "/start_event [ID ивента] [id_planted] [Время старта (YYYY-MM-DD HH-MM-SS)] " \
+            bot.send_message(id, "/start_event [ID ивента] [ID посадки] [Время старта (YYYY-MM-DD HH-MM-SS)] " \
                                 "[На какое время ивент (в часах)] [Общая цель (0 если не нужна)]")
             return
 
@@ -3705,7 +2960,7 @@ def start_event(message):
 
             event_name = EVENTS[event_id]
 
-            db.set_event(event_id, id_planted, time_start, time_end)
+            db.set_event(event_id, id_planted, time_start, time_end, all_goal)
 
             text = f"Запланирован ивент: {event_name}\n"\
                     f"Дата начала: {time_start}\n"\
@@ -3727,7 +2982,45 @@ def start_event(message):
 
 
 
+def send_reward_all_goal_user():
+    db = Database()
+    datas = db.get_all_goal_user()
 
+    i = 0
+    for data in datas[0]: # 1-3 top
+        i += 1
+        db.add_gold_money(data['id'], 100)
+        db.set_inventory(data['id'], 29, quantity=3)
+        text = f"Твоя награда за ивент: Общая цель\n"\
+                f"Твоё место: {i}\n"\
+                f"Ты получил: \n"\
+                f"Золотые монеты х100\n"\
+                f"Легендарный бокс х3"
+        bot.send_message(data['id'], text)
+    
+    for data in datas[1]: # 4-10 top
+        i += 1
+        db.add_gold_money(data['id'], 50)
+        db.set_inventory(data['id'], 28, quantity=3)
+        text = f"Твоя награда за ивент: Общая цель\n"\
+                f"Твоё место: {i}\n"\
+                f"Ты получил: \n"\
+                f"Золотые монеты х50\n"\
+                f"Эпический бокс х3"
+        bot.send_message(data['id'], text)
+        
+    for data in datas[2]: # others 
+        i += 1
+        db.add_gold_money(data['id'], 10)
+        db.set_inventory(data['id'], 26, quantity=5)
+        text = f"Твоя награда за ивент: Общая цель\n"\
+                f"Твоё место: {i}\n"\
+                f"Ты получил: \n"\
+                f"Золотые монеты х10\n"\
+                f"Обычный бокс х5"
+        bot.send_message(data['id'], text)
+
+    db.close()
 
 # Временные функции 
 
@@ -3780,22 +3073,51 @@ def active_deactive_event():
     db = Database()
     events = db.get_event()
     for event in events:
+        if event['id_event'] == 2:
+            continue
+
         if gl.check_time(event['start_time_event']):
-            db.active_event(event['id_event'])
+            if event['active'] == 0:
+                db.active_event(event['id_event'])
+                if event['id_event'] == 3:
+                    db.reset_all_goal_user()
         
         if gl.check_time(event['end_time_event']):
-            db.delete_event()
+            if event['active'] == 1:
+                if event['id_event'] == 3:
+                    send_reward_all_goal_user()
+                db.delete_event(event['id_event'])
+    db.close()
+
+def update_farm_race():
+    db = Database()
+    id_seed = gl.random_harvest()
+    db.update_farm_race(id_seed)
+    db.close()
+
+def get_winner_week():
+    db = Database()
+    winners = db.get_top_3_week()
+    text = "Победители недели сбора урожая"
+    for winner in winners:
+        text += f"{winner['id']} - {winner['get_harvest_week']}\n"
+    for admin in ADMINS:
+        bot.send_message(admin, text)
     db.close()
 
 
-schedule.every(1).minutes.do(send_notification_harvest)
+
+
+
+schedule.every().minute.at(':00').do(send_notification_harvest)
+schedule.every().minute.at(':00').do(delete_post_market)
+schedule.every().hour.at(":00").do(active_deactive_event)
 schedule.every().day.at('00:00').do(update_tasks)
 schedule.every().day.at('00:00').do(daily_bonus_reset)
-schedule.every(1).minutes.do(delete_post_market)
 schedule.every().day.at('00:00').do(reset_counter_day)
-schedule.every().monday.at("00:00").do(reset_counter_week)
 schedule.every().day.at("00:00").do(sl.send_logs)
-schedule.every().hour.at(":00").do(active_deactive_event)
+schedule.every().monday.at("00:00").do(reset_counter_week)
+schedule.every().monday.at("00:00").do(update_farm_race)
 
 
 def scheduler():
