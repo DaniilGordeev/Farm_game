@@ -4,7 +4,6 @@ import os
 
 from config import TOKEN, ID_CHAT_REPORTS
 
-
 bot = telebot.TeleBot(TOKEN)
 
 def send_logs():

@@ -396,7 +396,7 @@ class Database:
 
         self._cursor.execute(
             '''
-            SELECT * FROM beds WHERE id_owner = ?
+            SELECT * FROM bed WHERE id_owner = ?
             ''',
             (self._id, )
         )
@@ -975,6 +975,14 @@ class Database:
 
         self._cursor.execute("SELECT * FROM events WHERE id_event = ?", (self._id_event, ))
         return self._cursor.fetchone()
+    
+    def get_active_event(self):
+        self._cursor.execute(
+            '''
+            SELECT * FROM events WHERE active = 1
+            '''
+        )
+        return self._cursor.fetchall()
     
     def set_event(self, id_event, id_planted, start_time_event, end_time_event, all_goal):
         self._id_event = id_event

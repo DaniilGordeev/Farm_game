@@ -2974,8 +2974,93 @@ def start_event(message):
         finally:
             db.close()
                 
-            
 
+@bot.message_handler(commands=['event']) 
+def event(message):
+    id = message.from_user.id 
+    db = Database()
+    events =  db.get_active_event()
+    text = f""
+    
+    if events == []:
+        text += f"🌾 На данный момент активных ивентов нет"
+    else:
+        text += f"🎪 Активные ивенты:\n\n"
+
+    for event in events:
+        id_event = event['id_event']
+        id_planted = event['id_planted']
+        name_planted = db.get_items_id(id_planted)['name']
+        name_event = EVENTS[id_event]
+        
+        event_icon = "🌱" if id_event == 1 else "🏆" if id_event == 2 else "👥"
+        text += f"{event_icon} {name_event}\n"
+
+        if id_event == 2:
+            text += f"⏳ Завершение: каждый понедельник в 00:00 (МСК)\n"
+        else:
+            text += f"⏳ Завершение: {event['end_time_event']}\n"
+        
+        text += f"🌿 Необходимо посадить: {name_planted}\n"
+
+        if id_event == 3:
+            progress = event['goal_complete']/event['all_goal']*100
+            text += f"🎯 Общий прогресс: {event['goal_complete']}/{event['all_goal']} ({progress:.1f}%)\n"
+            
+        text += "\n" 
+            
+    bot.send_message(id, text, reply_markup=kb.event_kb)
+
+@bot.callback_query_handler(lambda call: call.data == 'event_call') 
+def event_call(call):
+    id = call.from_user.id 
+    db = Database()
+    events =  db.get_active_event()
+    text = f""
+
+    if events == []:
+        text += f"🌾 На данный момент активных ивентов нет"
+    else:
+        text += f"🎪 Активные ивенты:\n\n"
+
+    for event in events:
+        id_event = event['id_event']
+        id_planted = event['id_planted']
+        name_planted = db.get_items_id(id_planted)['name']
+        name_event = EVENTS[id_event]
+        
+        event_icon = "🌱" if id_event == 1 else "🏆" if id_event == 2 else "👥"
+        text += f"{event_icon} {name_event}\n"
+
+        if id_event == 2:
+            text += f"⏳ Завершение: каждый понедельник в 00:00 (МСК)\n"
+        else:
+            text += f"⏳ Завершение: {event['end_time_event']}\n"
+        
+        text += f"🌿 Необходимо посадить: {name_planted}\n"
+
+        if id_event == 3:
+            progress = event['goal_complete']/event['all_goal']*100
+            text += f"🎯 Общий прогресс: {event['goal_complete']}/{event['all_goal']} ({progress:.1f}%)\n"
+            
+        text += "\n" 
+            
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.event_kb)
+
+@bot.callback_query_handler(lambda call: call.data == 'info_about_events')
+def info_about_events(call):
+    id = call.from_user.id
+    text =  f"<b>1. Случайное семечко 🌱</b>\n"\
+            f"Ты можешь посадить особый ивентный предмет: *Случайное семечко*\n"\
+            f"Оно будет расти 6 часов ⏳\n"\
+            f"После сбора ты получишь случайный урожай из всех возможных в игре 🎁\n\n"\
+            f"<b>2. Фермерская гонка 🏆</b>\n"\
+            f"Соревнуйся с другими игроками в скорости сбора урожая!\n"\
+            f"Итоги подводятся каждый понедельник, и топ-3 фермеров получают награды 🥇🥈🥉\n\n"\
+            f"<b>3. Общая цель 🌾</b>\n"\
+            f"Все игроки сообща работают над выполнением масштабного задания\n"\
+            f"Если цель будет достигнута в срок, каждый участник получит вознаграждение 💎"
+    bot.edit_message_text(text, id, call.message.message_id, reply_markup=kb.back_event_kb, parse_mode='html')
 
 
 
@@ -3109,8 +3194,8 @@ def get_winner_week():
 
 
 
-schedule.every().minute.at(':00').do(send_notification_harvest)
-schedule.every().minute.at(':00').do(delete_post_market)
+schedule.every().minutes.do(send_notification_harvest)
+schedule.every().minutes.do(delete_post_market)
 schedule.every().hour.at(":00").do(active_deactive_event)
 schedule.every().day.at('00:00').do(update_tasks)
 schedule.every().day.at('00:00').do(daily_bonus_reset)

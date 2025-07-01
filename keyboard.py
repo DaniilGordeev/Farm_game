@@ -415,6 +415,14 @@ get_daily_bonus_kb = types.InlineKeyboardMarkup()
 get_daily_bonus_kb.add(types.InlineKeyboardButton("🎁 Получить ежедневный бонус", callback_data='get_daily_bonus'))
 
 
+event_kb = types.InlineKeyboardMarkup()
+event_kb.add(
+    types.InlineKeyboardButton('Информация о ивентах', callback_data='info_about_events')
+)
+
+back_event_kb = types.InlineKeyboardMarkup()
+back_event_kb.add(types.InlineKeyboardButton('Назад', callback_data='event_call'))
+
 # Админ-панель
 main_admin_kb = types.InlineKeyboardMarkup(row_width=2)
 main_admin_kb.add(
@@ -424,7 +432,7 @@ main_admin_kb.add(
     types.InlineKeyboardButton('Ивенты', callback_data='events')
 )
 
+
 back_admin_main_kb = types.InlineKeyboardMarkup()
 back_admin_main_kb.add(types.InlineKeyboardButton('Назад', callback_data='admin_panel_call'))
-
 
