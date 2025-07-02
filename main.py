@@ -33,6 +33,7 @@ def start(message):
         db.set_bed(id, 1, gl.end_time(8))
         db.set_inventory(id, 1, 10)
         info_of_user = db.get_info_for_tasks(id)
+        user = db.get_me(id)
         db.set_tasks(id, gl.generate_tasks(info_of_user, user['money']))
         text = f'🌻 Привет, будущий фермер! 🌻\n'\
                 f'Перед тобой бескрайние поля, где:\n'\
