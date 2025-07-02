@@ -27,7 +27,8 @@ def continue_training(call):
 def start(message):
     id = message.from_user.id
     db = Database()
-    if db.check_users(id) == True: # Проверка на существование пользователя в БД
+    user = db.get_me(id)
+    if not user: # Проверка на существование пользователя в БД
         db.set_user(id, gl.end_time(4))
         db.set_farm(id)
         db.set_bed(id, 1, gl.end_time(8))
@@ -290,6 +291,13 @@ def tasks(call):
     id = call.from_user.id 
     db = Database()
     tasks = db.get_tasks(id)
+
+    if tasks == []:
+        text = f"Попробуй сначала использовать команду /start"
+        bot.edit_message_text(text, id, call.message.message_id)
+        db.close()
+        return
+
     if tasks['task1_completed'] != -1 and tasks['task2_completed'] != -1:
         text = f'📅 **Задания на сегодня** 📅\n\n'\
                 f'✅ **Задание 1**\n'\
