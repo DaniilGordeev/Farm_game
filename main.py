@@ -641,7 +641,7 @@ def quantity_buy(call):
     time_seed = TIME_SEEDS[id_seed][0]
     item = db.get_items_id(id_seed)
     
-    if user['money'] >= item['price']:
+    if user['money'] >= item['price'] * quantity:
         db.set_inventory(id, int(item['item_id']), quantity)
         db.edit_money(id, int(item['price'])*quantity)
         user = db.get_me(id)
